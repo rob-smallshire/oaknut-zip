@@ -479,7 +479,7 @@ def list_cmd(zipfile_path: Path) -> None:
     if not zipfile.is_zipfile(zipfile_path):
         raise click.ClickException(f"{zipfile_path} is not a valid ZIP file")
 
-    table = Table(title=str(zipfile_path))
+    table = Table(title=zipfile_path.name)
     table.add_column("Filename", style="cyan")
     table.add_column("Load", justify="right", style="green")
     table.add_column("Exec", justify="right", style="green")

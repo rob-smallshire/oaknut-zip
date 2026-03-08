@@ -80,18 +80,7 @@ uv run nutzip.py <command> [options]
 
 ```
 $ ./nutzip.py --help
-Usage: nutzip.py [OPTIONS] COMMAND [ARGS]...
-
-  Work with ZIP files containing Acorn computer metadata.
-
-Options:
-  --version  Show the version and exit.
-  --help     Show this message and exit.
-
-Commands:
-  extract  Extract a ZIP file, preserving Acorn metadata.
-  info     Show summary of Acorn metadata in a ZIP file.
-  list     List ZIP contents showing Acorn metadata.
+{{ help_output }}
 ```
 
 ## Inspecting an archive
@@ -100,23 +89,7 @@ Commands:
 
 ```
 $ ./nutzip.py list NetUtils.zip
-                               NetUtils.zip                                
-┏━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━┳━━━━━━━━━┓
-┃ Filename   ┃     Load ┃     Exec ┃   Length ┃     Attr ┃ Type ┃ Source  ┃
-┡━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━╇━━━━━━━━━┩
-│ Free       │ FFFF0E10 │ FFFF0E10 │ 000001E6 │  C18325D │  F0E │ sparkfs │
-│ FSList     │ FFFF0900 │ FFFF0900 │ 00000200 │ 1415365D │  F09 │ sparkfs │
-│ PSList     │ FFFF0900 │ FFFF0900 │ 000001B5 │  B861C5D │  F09 │ sparkfs │
-│ Notify     │ FFFF0E23 │ FFFF0E23 │ 0000012A │  C6B1E5D │  F0E │ sparkfs │
-│ Remote     │ FFFF0E10 │ FFFF0E10 │ 000001ED │ 1347085D │  F0E │ sparkfs │
-│ Servers    │ FFFF0900 │ FFFF091A │ 000001CF │ 17162C5D │  F09 │ sparkfs │
-│ SetStation │ FFFFDD00 │ FFFFDD00 │ 00000200 │ 1761575D │  FDD │ sparkfs │
-│ Stations   │ FFFF08D5 │ FFFF08E1 │ 0000022B │ 13615A57 │  F08 │ sparkfs │
-│ SJMon      │ FFFF1B00 │ FFFF1B00 │ 00000D7E │   F6040D │  F1B │ sparkfs │
-│ Users      │ FFFF0E23 │ FFFF0E23 │ 00000139 │   15355D │  F0E │ sparkfs │
-│ View       │ FFFF0900 │ FFFF0904 │ 000001FF │ 135A115D │  F09 │ sparkfs │
-│ ReadMe     │ FFFFFF52 │ 2FEEAFD0 │ 00000255 │  BEB2A55 │  FFF │ sparkfs │
-└────────────┴──────────┴──────────┴──────────┴──────────┴──────┴─────────┘
+{{ list_output }}
 ```
 
 The **Source** column shows where the metadata was found: `sparkfs` for
@@ -128,42 +101,14 @@ column shows the RISC OS filetype extracted from the load address (when the top
 
 ```
 $ ./nutzip.py info NetUtils.zip
-Archive:    NetUtils.zip
-Files:      12
-Dirs:       0
-SparkFS:    12 files with ARC0 extra fields
-NFS:        0 files with NFS-encoded filenames
-Plain:      0 files without Acorn metadata
-Filetypes:  6 distinct
-  F08: 1 files
-  F09: 4 files
-  F0E: 4 files
-  F1B: 1 files
-  FDD: 1 files
-  FFF: 1 files
+{{ info_output }}
 ```
 
 ## Extracting an archive
 
 ```
 $ ./nutzip.py extract --help
-Usage: nutzip.py extract [OPTIONS] ZIPFILE_PATH
-
-  Extract a ZIP file, preserving Acorn metadata.
-
-Options:
-  -d, --output-dir PATH           Output directory (default: ZIP filename
-                                  without extension).
-  -v, --verbose                   Show extraction progress.
-  --meta-format [acorn|pibridge|xattr|none]
-                                  Metadata format: acorn INF (standard),
-                                  pibridge INF, xattr (extended attributes),
-                                  or none.
-  --no-nfs                        Do not decode NFS filename encoding (,xxx or
-                                  ,load,exec suffixes).
-  --owner INTEGER                 Econet owner ID for PiEconetBridge INF files
-                                  (default: 0 = SYST).
-  --help                          Show this message and exit.
+{{ extract_help_output }}
 ```
 
 nutzip supports three output metadata formats, selected with `--meta-format`.
@@ -177,11 +122,7 @@ nutzip supports three output metadata formats, selected with `--meta-format`.
 Each extracted file gets a companion `.inf` sidecar file:
 
 ```
-$ cat SetStation.inf
-SetStation  FFFFDD00 FFFFDD00 00000200 1761575D
-
-$ cat ReadMe.inf
-ReadMe      FFFFFF52 2FEEAFD0 00000255 BEB2A55
+{{ acorn_inf_examples }}
 ```
 
 The fields are space-separated, with the filename left-padded to 11 characters:
@@ -211,11 +152,7 @@ Writes `.inf` sidecar files in the format used by
 [PiEconetBridge](https://github.com/cr12925/PiEconetBridge):
 
 ```
-$ cat SetStation.inf
-0 ffffdd00 ffffdd00 1761575d
-
-$ cat ReadMe.inf
-0 ffffff52 2feeafd0 beb2a55
+{{ pibridge_inf_examples }}
 ```
 
 The fields, all lowercase hex:
@@ -245,17 +182,7 @@ Writes metadata directly into the filesystem's extended attributes, with no
 sidecar files:
 
 ```
-$ xattr -l SetStation
-user.econet_exec: FFFFDD00
-user.econet_load: FFFFDD00
-user.econet_owner: 0000
-user.econet_perm: 1761575D
-
-$ xattr -l ReadMe
-user.econet_exec: 2FEEAFD0
-user.econet_load: FFFFFF52
-user.econet_owner: 0000
-user.econet_perm: BEB2A55
+{{ xattr_examples }}
 ```
 
 The attribute names and value formats match PiEconetBridge's C implementation
