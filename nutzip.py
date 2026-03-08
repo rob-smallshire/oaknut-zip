@@ -600,6 +600,12 @@ def extract(
     else:
         resolved_meta_format = MetaFormat(meta_format)
 
+    if resolved_meta_format == MetaFormat.XATTR and sys.platform == "win32":
+        raise click.ClickException(
+            "Extended attributes are not supported on Windows. "
+            "Use --meta-format acorn, pibridge, or filename instead."
+        )
+
     output_dir.mkdir(parents=True, exist_ok=True)
 
     if verbose:

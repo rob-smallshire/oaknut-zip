@@ -1207,6 +1207,18 @@ class TestCliExtract:
         assert "PROG" in result.output
         assert "[sparkfs]" in result.output
 
+    def test_xattr_rejected_on_windows(self, tmp_path):
+        zip_filepath = make_zip_file(tmp_path, [("FILE", b"data", None)])
+        runner = CliRunner()
+        with patch("nutzip.sys") as mock_sys:
+            mock_sys.platform = "win32"
+            result = runner.invoke(
+                cli,
+                ["extract", "--meta-format", "xattr", str(zip_filepath), "-d", str(tmp_path / "out")],
+            )
+        assert result.exit_code != 0
+        assert "not supported on Windows" in result.output
+
 
 class TestCliList:
     def test_list_sparkfs(self, tmp_path):
