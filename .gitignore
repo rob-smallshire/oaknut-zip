@@ -6,3 +6,4 @@ dist/
 build/
 .venv/
 *.zip
+!tests/fixtures/*.zip

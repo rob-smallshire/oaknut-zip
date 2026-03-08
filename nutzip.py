@@ -1,8 +1,9 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run
 # /// script
 # requires-python = ">=3.10"
 # dependencies = [
 #     "click>=8.0",
+#     "xattr>=1.0",
 # ]
 # ///
 """
@@ -16,9 +17,10 @@ Supports two metadata sources within ZIP files:
   - SparkFS extra fields (header ID 0x4341, "ARC0" signature)
   - NFS filename encoding (,xxx filetype or ,llllllll,eeeeeeee load/exec)
 
-Supports two output metadata formats:
+Supports three output metadata formats:
   - Standard Acorn INF: filename load exec length [access]
   - PiEconetBridge INF: owner load exec perm [homeof]
+  - Extended attributes: user.econet_{load,exec,perm,owner} xattrs
 
 References:
   - INF format: https://beebwiki.mdfs.net/INF_file_format
@@ -38,6 +40,7 @@ from enum import Enum
 from pathlib import Path
 
 import click
+import xattr
 
 
 # SparkFS extra field constants
@@ -71,11 +74,12 @@ ATTR_PUBLIC_WRITE = 0x10
 ATTR_PUBLIC_READ = 0x20
 
 
-class InfFormat(str, Enum):
-    """Supported .inf sidecar file formats."""
+class MetaFormat(str, Enum):
+    """Supported output metadata formats."""
 
     ACORN = "acorn"
     PIBRIDGE = "pibridge"
+    XATTR = "xattr"
 
 
 @dataclass
@@ -255,6 +259,29 @@ def format_pibridge_inf_line(
     return f"{owner:x} {load_addr:x} {exec_addr:x} {perm:x}"
 
 
+def write_econet_xattrs(
+    filepath: Path,
+    load_addr: int,
+    exec_addr: int,
+    attr: int | None = None,
+    owner: int = 0,
+) -> None:
+    """Write PiEconetBridge-compatible extended attributes to a file.
+
+    Attributes written (uppercase hex strings matching PiEconetBridge's C sprintf):
+        user.econet_owner  = %04X
+        user.econet_load   = %08X
+        user.econet_exec   = %08X
+        user.econet_perm   = %02X
+    """
+    x = xattr.xattr(str(filepath))
+    x.set("user.econet_owner", f"{owner:04X}".encode("ascii"))
+    x.set("user.econet_load", f"{load_addr:08X}".encode("ascii"))
+    x.set("user.econet_exec", f"{exec_addr:08X}".encode("ascii"))
+    perm = attr if attr is not None else 0x17
+    x.set("user.econet_perm", f"{perm:02X}".encode("ascii"))
+
+
 # ---------------------------------------------------------------------------
 # Path safety
 # ---------------------------------------------------------------------------
@@ -287,11 +314,11 @@ def extract_member(
     output_dirpath: Path,
     *,
     verbose: bool = False,
-    inf_format: InfFormat | None = InfFormat.ACORN,
+    meta_format: MetaFormat | None = MetaFormat.ACORN,
     nfs_decode: bool = True,
     owner: int = 0,
 ) -> None:
-    """Extract a single ZIP member, optionally writing .inf sidecar files."""
+    """Extract a single ZIP member, optionally writing metadata."""
 
     if info.is_dir():
         dirpath = sanitise_extract_path(output_dirpath, info.filename)
@@ -320,10 +347,24 @@ def extract_member(
                 type_info += f" type={ft:03X}"
         click.echo(f"  extract: {rel}{type_info}")
 
-    if inf_format is not None and meta and meta.has_metadata:
+    if meta_format is None or not (meta and meta.has_metadata):
+        return
+
+    if meta_format == MetaFormat.XATTR:
+        write_econet_xattrs(
+            output_filepath,
+            load_addr=meta.load_addr,
+            exec_addr=meta.exec_addr,
+            attr=meta.attr,
+            owner=owner,
+        )
+        if verbose:
+            rel = output_filepath.relative_to(output_dirpath)
+            click.echo(f"    xattr: {rel}")
+    else:
         leaf_name = output_filepath.name
 
-        if inf_format == InfFormat.ACORN:
+        if meta_format == MetaFormat.ACORN:
             inf_line = format_acorn_inf_line(
                 filename=leaf_name,
                 load_addr=meta.load_addr,
@@ -371,10 +412,10 @@ def cli() -> None:
 )
 @click.option("-v", "--verbose", is_flag=True, help="Show extraction progress.")
 @click.option(
-    "--inf-format",
-    type=click.Choice(["acorn", "pibridge", "none"], case_sensitive=False),
+    "--meta-format",
+    type=click.Choice(["acorn", "pibridge", "xattr", "none"], case_sensitive=False),
     default="acorn",
-    help="INF sidecar format: acorn (standard), pibridge (PiEconetBridge), or none.",
+    help="Metadata format: acorn INF (standard), pibridge INF, xattr (extended attributes), or none.",
 )
 @click.option(
     "--no-nfs",
@@ -391,11 +432,11 @@ def extract(
     zipfile_path: Path,
     output_dir: Path | None,
     verbose: bool,
-    inf_format: str,
+    meta_format: str,
     no_nfs: bool,
     owner: int,
 ) -> None:
-    """Extract a ZIP file, preserving Acorn metadata as .inf sidecar files."""
+    """Extract a ZIP file, preserving Acorn metadata."""
 
     if not zipfile.is_zipfile(zipfile_path):
         raise click.ClickException(f"{zipfile_path} is not a valid ZIP file")
@@ -403,11 +444,11 @@ def extract(
     if output_dir is None:
         output_dir = Path(zipfile_path.stem)
 
-    resolved_inf_format: InfFormat | None
-    if inf_format == "none":
-        resolved_inf_format = None
+    resolved_meta_format: MetaFormat | None
+    if meta_format == "none":
+        resolved_meta_format = None
     else:
-        resolved_inf_format = InfFormat(inf_format)
+        resolved_meta_format = MetaFormat(meta_format)
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -421,7 +462,7 @@ def extract(
                 info,
                 output_dir,
                 verbose=verbose,
-                inf_format=resolved_inf_format,
+                meta_format=resolved_meta_format,
                 nfs_decode=not no_nfs,
                 owner=owner,
             )
