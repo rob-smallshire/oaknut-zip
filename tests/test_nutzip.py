@@ -1051,7 +1051,8 @@ class TestCliList:
         runner = CliRunner()
         result = runner.invoke(cli, ["list", str(zip_filepath)])
         assert result.exit_code == 0
-        assert "<dir>" in result.output
+        assert "subdir/" in result.output
+        assert "dir" in result.output
 
     def test_list_invalid_zip(self, tmp_path):
         bad = tmp_path / "bad.zip"

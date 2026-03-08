@@ -3,6 +3,7 @@
 # requires-python = ">=3.10"
 # dependencies = [
 #     "click>=8.0",
+#     "rich>=13.0",
 #     "xattr>=1.0",
 # ]
 # ///
@@ -472,21 +473,25 @@ def extract(
 @click.argument("zipfile_path", type=click.Path(exists=True, path_type=Path))
 def list_cmd(zipfile_path: Path) -> None:
     """List ZIP contents showing Acorn metadata."""
+    from rich.console import Console
+    from rich.table import Table
 
     if not zipfile.is_zipfile(zipfile_path):
         raise click.ClickException(f"{zipfile_path} is not a valid ZIP file")
 
-    with zipfile.ZipFile(zipfile_path, "r") as zf:
-        header = (
-            f"{'Filename':<40} {'Load':>8} {'Exec':>8} {'Length':>8}"
-            f" {'Attr':>4} {'Type':>4} {'Source':<7}"
-        )
-        click.echo(header)
-        click.echo("-" * len(header))
+    table = Table(title=str(zipfile_path))
+    table.add_column("Filename", style="cyan")
+    table.add_column("Load", justify="right", style="green")
+    table.add_column("Exec", justify="right", style="green")
+    table.add_column("Length", justify="right")
+    table.add_column("Attr", justify="right", style="yellow")
+    table.add_column("Type", justify="right", style="magenta")
+    table.add_column("Source", style="dim")
 
+    with zipfile.ZipFile(zipfile_path, "r") as zf:
         for info in zf.infolist():
             if info.is_dir():
-                click.echo(f"{info.filename:<40} {'<dir>':>8}")
+                table.add_row(info.filename, "", "", "", "", "", "dir")
                 continue
 
             metadata_source, clean_name, meta = resolve_metadata(info)
@@ -497,17 +502,27 @@ def list_cmd(zipfile_path: Path) -> None:
                 attr_str = (
                     format_access(meta.attr) if meta.attr is not None else ""
                 )
-                source_str = metadata_source or ""
-                click.echo(
-                    f"{clean_name:<40} {meta.load_addr:08X}"
-                    f" {meta.exec_addr:08X} {info.file_size:08X}"
-                    f" {attr_str:>4} {ft_str:>4} {source_str:<7}"
+                table.add_row(
+                    clean_name,
+                    f"{meta.load_addr:08X}",
+                    f"{meta.exec_addr:08X}",
+                    f"{info.file_size:08X}",
+                    attr_str,
+                    ft_str,
+                    metadata_source or "",
                 )
             else:
-                click.echo(
-                    f"{clean_name:<40} {'':>8} {'':>8}"
-                    f" {info.file_size:08X} {'':>4} {'':>4}"
+                table.add_row(
+                    clean_name,
+                    "",
+                    "",
+                    f"{info.file_size:08X}",
+                    "",
+                    "",
+                    "",
                 )
+
+    Console().print(table)
 
 
 @cli.command()
