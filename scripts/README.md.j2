@@ -260,16 +260,20 @@ Load address: FFFtttxx
 
 Common filetypes in BBC/Econet software:
 
-| Type  | Name             | Description                          |
-|-------|------------------|--------------------------------------|
-| `F08` | Transient command | Executed by the CLI, discarded after |
-| `F09` | Transient command | Variant used by some utilities       |
-| `F0E` | MOS command       | Machine Operating System utility     |
-| `F1B` | Module            | Relocatable module                   |
-| `FDD` | BASIC stored      | Tokenised BBC BASIC program          |
-| `FFB` | BASIC text        | Textual BBC BASIC program            |
-| `FFD` | Data              | Generic data file                    |
-| `FFF` | Text              | Plain text file                      |
+| Type  | Name       | Description                               |
+|-------|------------|-------------------------------------------|
+| `F08` | ViewPS     | View word processor                       |
+| `F09` | WiniUtil   | BBC Winchester utility                    |
+| `F0E` | EconetUt   | BBC Econet utility                        |
+| `F1B` | 65Host     | Usually a BASIC program                   |
+| `FDD` | MasterUt   | BBC Master utilities                      |
+| `FF9` | Sprite     | Sprite or saved screen                    |
+| `FFA` | Module     | Relocatable module                        |
+| `FFB` | BASIC      | Tokenised BASIC program                   |
+| `FFC` | Utility    | Position independent code                 |
+| `FFD` | Data       | Arbitrary data                            |
+| `FFE` | Command    | Command (Exec) file                       |
+| `FFF` | Text       | Plain ASCII text with LF newlines         |
 
 ## Acorn file attribute bits
 
