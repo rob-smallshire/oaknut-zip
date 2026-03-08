@@ -219,7 +219,9 @@ ZIP archives created by [SparkFS](http://www.davidpilling.com/wiki/index.php/Spa
 SparkPlug, or RISC OS zip tools embed Acorn metadata as a ZIP extra field with
 header ID `0x4341` ("AC") and an "ARC0" signature.
 
-The extra field layout (all values little-endian):
+The extra field layout (all values little-endian), as defined in the
+[Info-ZIP extra field specification](https://libzip.org/specifications/extrafld.txt)
+by [David Pilling](http://www.davidpilling.com/wiki/index.php/SparkFS):
 
 | Offset | Size    | Description                    |
 |--------|---------|--------------------------------|
