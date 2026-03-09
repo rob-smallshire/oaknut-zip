@@ -9,7 +9,25 @@ import click
 from . import __version__
 from .api import archive_info, extract_archive, list_archive
 from .formatting import format_access
-from .models import MetaFormat
+from .models import (
+    ATTR_KEY,
+    DIRS_KEY,
+    EXEC_ADDR_KEY,
+    FILE_SIZE_KEY,
+    FILENAME_COUNT_KEY,
+    FILENAME_KEY,
+    FILETYPE_KEY,
+    FILETYPES_KEY,
+    INF_COUNT_KEY,
+    IS_DIR_KEY,
+    LOAD_ADDR_KEY,
+    PIEB_INF_COUNT_KEY,
+    PLAIN_COUNT_KEY,
+    SOURCE_KEY,
+    SPARKFS_COUNT_KEY,
+    TOTAL_KEY,
+    MetaFormat,
+)
 
 
 @click.group()
@@ -93,29 +111,29 @@ def list_cmd(zipfile_path: Path) -> None:
     table.add_column("Source", style="dim")
 
     for entry in entries:
-        if entry["is_dir"]:
-            table.add_row(entry["filename"], "", "", "", "", "", "dir")
+        if entry[IS_DIR_KEY]:
+            table.add_row(entry[FILENAME_KEY], "", "", "", "", "", "dir")
             continue
 
-        if entry["load_addr"] is not None:
-            ft = entry["filetype"]
+        if entry[LOAD_ADDR_KEY] is not None:
+            ft = entry[FILETYPE_KEY]
             ft_str = f"{ft:03X}" if ft is not None else ""
-            attr_str = format_access(entry["attr"]) if entry["attr"] is not None else ""
+            attr_str = format_access(entry[ATTR_KEY]) if entry[ATTR_KEY] is not None else ""
             table.add_row(
-                entry["filename"],
-                f"{entry['load_addr']:08X}",
-                f"{entry['exec_addr']:08X}",
-                f"{entry['file_size']:08X}",
+                entry[FILENAME_KEY],
+                f"{entry[LOAD_ADDR_KEY]:08X}",
+                f"{entry[EXEC_ADDR_KEY]:08X}",
+                f"{entry[FILE_SIZE_KEY]:08X}",
                 attr_str,
                 ft_str,
-                entry["source"],
+                entry[SOURCE_KEY],
             )
         else:
             table.add_row(
-                entry["filename"],
+                entry[FILENAME_KEY],
                 "",
                 "",
-                f"{entry['file_size']:08X}",
+                f"{entry[FILE_SIZE_KEY]:08X}",
                 "",
                 "",
                 "",
@@ -131,16 +149,16 @@ def info(zipfile_path: Path) -> None:
 
     stats = archive_info(zipfile_path)
 
-    click.echo(f"Archive:    {stats['filename']}")
-    click.echo(f"Files:      {stats['total']}")
-    click.echo(f"Dirs:       {stats['dirs']}")
-    click.echo(f"SparkFS:    {stats['sparkfs_count']} files with ARC0 extra fields")
-    click.echo(f"inf-trad:   {stats['inf_count']} files with bundled traditional INF")
-    click.echo(f"inf-pieb:   {stats['pieb_inf_count']} files with bundled PiEconetBridge INF")
-    click.echo(f"Filename:   {stats['filename_count']} files with encoded filenames")
-    click.echo(f"Plain:      {stats['plain_count']} files without Acorn metadata")
+    click.echo(f"Archive:    {stats[FILENAME_KEY]}")
+    click.echo(f"Files:      {stats[TOTAL_KEY]}")
+    click.echo(f"Dirs:       {stats[DIRS_KEY]}")
+    click.echo(f"SparkFS:    {stats[SPARKFS_COUNT_KEY]} files with ARC0 extra fields")
+    click.echo(f"inf-trad:   {stats[INF_COUNT_KEY]} files with bundled traditional INF")
+    click.echo(f"inf-pieb:   {stats[PIEB_INF_COUNT_KEY]} files with bundled PiEconetBridge INF")
+    click.echo(f"Filename:   {stats[FILENAME_COUNT_KEY]} files with encoded filenames")
+    click.echo(f"Plain:      {stats[PLAIN_COUNT_KEY]} files without Acorn metadata")
 
-    filetypes = stats["filetypes"]
+    filetypes = stats[FILETYPES_KEY]
     if filetypes:
         click.echo(f"Filetypes:  {len(filetypes)} distinct")
         for ft in sorted(filetypes):

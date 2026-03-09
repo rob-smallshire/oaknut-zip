@@ -12,6 +12,10 @@ import struct
 import zipfile
 
 from .models import (
+    SOURCE_FILENAME,
+    SOURCE_INF_PIEB,
+    SOURCE_INF_TRAD,
+    SOURCE_SPARKFS,
     SPARKFS_DATA_LENGTH,
     SPARKFS_HEADER_ID,
     SPARKFS_SIGNATURE,
@@ -128,7 +132,7 @@ def parse_inf_line(line: str) -> tuple[str, AcornMeta] | None:
             attr = int(parts[4], 16) if len(parts) >= 5 else None
             meta = AcornMeta(load_addr=load_addr, exec_addr=exec_addr, attr=attr)
             meta.filetype = meta.infer_filetype()
-            return ("inf-trad", meta)
+            return (SOURCE_INF_TRAD, meta)
         except (ValueError, IndexError):
             return None
 
@@ -142,7 +146,7 @@ def parse_inf_line(line: str) -> tuple[str, AcornMeta] | None:
             attr = int(parts[4], 16) if len(parts) >= 5 else None
             meta = AcornMeta(load_addr=load_addr, exec_addr=exec_addr, attr=attr)
             meta.filetype = meta.infer_filetype()
-            return ("inf-trad", meta)
+            return (SOURCE_INF_TRAD, meta)
         except (ValueError, IndexError):
             return None
 
@@ -153,7 +157,7 @@ def parse_inf_line(line: str) -> tuple[str, AcornMeta] | None:
         perm = int(parts[3], 16)
         meta = AcornMeta(load_addr=load_addr, exec_addr=exec_addr, attr=perm)
         meta.filetype = meta.infer_filetype()
-        return ("inf-pieb", meta)
+        return (SOURCE_INF_PIEB, meta)
     except (ValueError, IndexError):
         return None
 
@@ -211,7 +215,7 @@ def resolve_metadata(
     original_filename = info.filename
 
     meta = parse_sparkfs_extra(info.extra)
-    metadata_source: str | None = "sparkfs" if meta else None
+    metadata_source: str | None = SOURCE_SPARKFS if meta else None
 
     if meta is None and inf_index is not None:
         inf_entry = inf_index.get(original_filename)
@@ -223,7 +227,7 @@ def resolve_metadata(
     if decode_filenames and filename_meta:
         if meta is None:
             meta = filename_meta
-            metadata_source = "filename"
+            metadata_source = SOURCE_FILENAME
         output_filename = clean_filename
     else:
         output_filename = original_filename

@@ -38,6 +38,34 @@ class MetaFormat(str, Enum):
     FILENAME_MOS = "filename-mos"
 
 
+# Metadata source labels
+SOURCE_SPARKFS = "sparkfs"
+SOURCE_INF_TRAD = "inf-trad"
+SOURCE_INF_PIEB = "inf-pieb"
+SOURCE_FILENAME = "filename"
+SOURCE_DIR = "dir"
+
+# Dictionary keys for list_archive entries
+FILENAME_KEY = "filename"
+IS_DIR_KEY = "is_dir"
+FILE_SIZE_KEY = "file_size"
+LOAD_ADDR_KEY = "load_addr"
+EXEC_ADDR_KEY = "exec_addr"
+ATTR_KEY = "attr"
+FILETYPE_KEY = "filetype"
+SOURCE_KEY = "source"
+
+# Dictionary keys for archive_info results
+TOTAL_KEY = "total"
+DIRS_KEY = "dirs"
+SPARKFS_COUNT_KEY = "sparkfs_count"
+INF_COUNT_KEY = "inf_count"
+PIEB_INF_COUNT_KEY = "pieb_inf_count"
+FILENAME_COUNT_KEY = "filename_count"
+PLAIN_COUNT_KEY = "plain_count"
+FILETYPES_KEY = "filetypes"
+
+
 @dataclass
 class AcornMeta:
     """Acorn file metadata extracted from a ZIP entry."""

@@ -15,7 +15,31 @@ from .formatting import (
     format_trad_inf_line,
     write_econet_xattrs,
 )
-from .models import AcornMeta, MetaFormat
+from .models import (
+    ATTR_KEY,
+    DIRS_KEY,
+    EXEC_ADDR_KEY,
+    FILE_SIZE_KEY,
+    FILENAME_COUNT_KEY,
+    FILENAME_KEY,
+    FILETYPE_KEY,
+    FILETYPES_KEY,
+    INF_COUNT_KEY,
+    IS_DIR_KEY,
+    LOAD_ADDR_KEY,
+    PIEB_INF_COUNT_KEY,
+    PLAIN_COUNT_KEY,
+    SOURCE_DIR,
+    SOURCE_FILENAME,
+    SOURCE_INF_PIEB,
+    SOURCE_INF_TRAD,
+    SOURCE_KEY,
+    SOURCE_SPARKFS,
+    SPARKFS_COUNT_KEY,
+    TOTAL_KEY,
+    AcornMeta,
+    MetaFormat,
+)
 from .parsing import build_inf_index, resolve_metadata
 
 
@@ -244,14 +268,14 @@ def list_archive(
                 continue
             if info.is_dir():
                 entries.append({
-                    "filename": info.filename,
-                    "is_dir": True,
-                    "load_addr": None,
-                    "exec_addr": None,
-                    "file_size": 0,
-                    "attr": None,
-                    "filetype": None,
-                    "source": "dir",
+                    FILENAME_KEY: info.filename,
+                    IS_DIR_KEY: True,
+                    LOAD_ADDR_KEY: None,
+                    EXEC_ADDR_KEY: None,
+                    FILE_SIZE_KEY: 0,
+                    ATTR_KEY: None,
+                    FILETYPE_KEY: None,
+                    SOURCE_KEY: SOURCE_DIR,
                 })
                 continue
 
@@ -260,20 +284,20 @@ def list_archive(
             )
 
             entry = {
-                "filename": clean_name,
-                "is_dir": False,
-                "file_size": info.file_size,
-                "load_addr": None,
-                "exec_addr": None,
-                "attr": None,
-                "filetype": None,
-                "source": metadata_source or "",
+                FILENAME_KEY: clean_name,
+                IS_DIR_KEY: False,
+                FILE_SIZE_KEY: info.file_size,
+                LOAD_ADDR_KEY: None,
+                EXEC_ADDR_KEY: None,
+                ATTR_KEY: None,
+                FILETYPE_KEY: None,
+                SOURCE_KEY: metadata_source or "",
             }
             if meta and meta.has_metadata:
-                entry["load_addr"] = meta.load_addr
-                entry["exec_addr"] = meta.exec_addr
-                entry["attr"] = meta.attr
-                entry["filetype"] = meta.infer_filetype()
+                entry[LOAD_ADDR_KEY] = meta.load_addr
+                entry[EXEC_ADDR_KEY] = meta.exec_addr
+                entry[ATTR_KEY] = meta.attr
+                entry[FILETYPE_KEY] = meta.infer_filetype()
 
             entries.append(entry)
 
@@ -324,13 +348,13 @@ def archive_info(
                 entry, inf_index=inf_index
             )
 
-            if metadata_source == "sparkfs":
+            if metadata_source == SOURCE_SPARKFS:
                 sparkfs_count += 1
-            elif metadata_source == "inf-trad":
+            elif metadata_source == SOURCE_INF_TRAD:
                 inf_count += 1
-            elif metadata_source == "inf-pieb":
+            elif metadata_source == SOURCE_INF_PIEB:
                 pieb_inf_count += 1
-            elif metadata_source == "filename":
+            elif metadata_source == SOURCE_FILENAME:
                 filename_count += 1
             else:
                 plain_count += 1
@@ -341,13 +365,13 @@ def archive_info(
                     filetypes[ft] = filetypes.get(ft, 0) + 1
 
     return {
-        "filename": zipfile_path.name,
-        "total": total,
-        "dirs": dirs,
-        "sparkfs_count": sparkfs_count,
-        "inf_count": inf_count,
-        "pieb_inf_count": pieb_inf_count,
-        "filename_count": filename_count,
-        "plain_count": plain_count,
-        "filetypes": filetypes,
+        FILENAME_KEY: zipfile_path.name,
+        TOTAL_KEY: total,
+        DIRS_KEY: dirs,
+        SPARKFS_COUNT_KEY: sparkfs_count,
+        INF_COUNT_KEY: inf_count,
+        PIEB_INF_COUNT_KEY: pieb_inf_count,
+        FILENAME_COUNT_KEY: filename_count,
+        PLAIN_COUNT_KEY: plain_count,
+        FILETYPES_KEY: filetypes,
     }

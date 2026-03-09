@@ -2,7 +2,31 @@
 
 __version__ = "0.1.0"
 
-from .models import AcornMeta, MetaFormat
+from .models import (
+    ATTR_KEY,
+    DIRS_KEY,
+    EXEC_ADDR_KEY,
+    FILE_SIZE_KEY,
+    FILENAME_COUNT_KEY,
+    FILENAME_KEY,
+    FILETYPE_KEY,
+    FILETYPES_KEY,
+    INF_COUNT_KEY,
+    IS_DIR_KEY,
+    LOAD_ADDR_KEY,
+    PIEB_INF_COUNT_KEY,
+    PLAIN_COUNT_KEY,
+    SOURCE_DIR,
+    SOURCE_FILENAME,
+    SOURCE_INF_PIEB,
+    SOURCE_INF_TRAD,
+    SOURCE_KEY,
+    SOURCE_SPARKFS,
+    SPARKFS_COUNT_KEY,
+    TOTAL_KEY,
+    AcornMeta,
+    MetaFormat,
+)
 from .parsing import (
     build_inf_index,
     parse_encoded_filename,
@@ -24,8 +48,29 @@ from .api import (
 )
 
 __all__ = [
+    "ATTR_KEY",
     "AcornMeta",
+    "DIRS_KEY",
+    "EXEC_ADDR_KEY",
+    "FILE_SIZE_KEY",
+    "FILENAME_COUNT_KEY",
+    "FILENAME_KEY",
+    "FILETYPE_KEY",
+    "FILETYPES_KEY",
+    "INF_COUNT_KEY",
+    "IS_DIR_KEY",
+    "LOAD_ADDR_KEY",
     "MetaFormat",
+    "PIEB_INF_COUNT_KEY",
+    "PLAIN_COUNT_KEY",
+    "SOURCE_DIR",
+    "SOURCE_FILENAME",
+    "SOURCE_INF_PIEB",
+    "SOURCE_INF_TRAD",
+    "SOURCE_KEY",
+    "SOURCE_SPARKFS",
+    "SPARKFS_COUNT_KEY",
+    "TOTAL_KEY",
     "build_filename_suffix",
     "build_inf_index",
     "build_mos_filename_suffix",
