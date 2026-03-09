@@ -416,11 +416,6 @@ Example RISC OS filetypes:
 
 | Type  | Name       | Description                               |
 |-------|------------|-------------------------------------------|
-| `F08` | ViewPS     | View word processor                       |
-| `F09` | WiniUtil   | BBC Winchester utility                    |
-| `F0E` | EconetUt   | BBC Econet utility                        |
-| `F1B` | 65Host     | Usually a BASIC program                   |
-| `FDD` | MasterUt   | BBC Master utilities                      |
 | `FF9` | Sprite     | Sprite or saved screen                    |
 | `FFA` | Module     | Relocatable module                        |
 | `FFB` | BASIC      | Tokenised BASIC program                   |
