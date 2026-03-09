@@ -380,7 +380,15 @@ A file with attributes `0x03` is owner-readable and owner-writable (WR).
 A value of `0x17` adds public read access (WR/R), which is the default
 for files served by PiEconetBridge.
 
-## Running the tests
+## Development
+
+After cloning, install the pre-commit hooks:
+
+```
+uv run --group dev pre-commit install
+```
+
+### Running the tests
 
 ```
 uv run --group test pytest tests/ -v
