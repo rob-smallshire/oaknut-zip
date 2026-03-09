@@ -13,7 +13,7 @@ A Python tool for extracting ZIP files containing
 [Acorn computer](https://en.wikipedia.org/wiki/Acorn_Computers) metadata.
 
 Standard unzip tools silently discard the load addresses, execution addresses,
-and file attributes that Acorn systems (BBC Micro, Master, Archimedes, RISC OS
+and file attributes that Acorn systems (BBC Micro, Master, RISC OS
 machines) store in ZIP archives. oaknut-zip preserves this metadata, writing it out
 in your choice of four formats.
 
