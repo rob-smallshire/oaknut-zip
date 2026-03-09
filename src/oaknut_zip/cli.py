@@ -101,8 +101,8 @@ def list_cmd(zipfile_path: Path) -> None:
 
     entries = list_archive(zipfile_path)
 
-    table = Table(title=zipfile_path.name)
-    table.add_column("Filename", style="cyan")
+    table = Table(title=zipfile_path.name, expand=True)
+    table.add_column("Filename", style="cyan", no_wrap=True, ratio=1)
     table.add_column("Load", justify="right", style="green")
     table.add_column("Exec", justify="right", style="green")
     table.add_column("Length", justify="right")
