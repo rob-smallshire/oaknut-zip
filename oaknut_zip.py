@@ -8,7 +8,7 @@
 # ]
 # ///
 """
-nutzip - Work with ZIP files containing Acorn computer metadata.
+oaknut-zip - Work with ZIP files containing Acorn computer metadata.
 
 Handles Acorn/RISC OS-specific metadata stored in ZIP archives, preserving
 load addresses, execution addresses, and file attributes that standard
@@ -554,7 +554,7 @@ def extract_member(
 
 
 @click.group()
-@click.version_option(version="0.1.0", prog_name="nutzip")
+@click.version_option(version="0.1.0", prog_name="oaknut-zip")
 def cli() -> None:
     """Work with ZIP files containing Acorn computer metadata."""
 

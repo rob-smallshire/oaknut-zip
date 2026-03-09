@@ -1,4 +1,4 @@
-"""Extensive tests for nutzip - Acorn metadata ZIP extractor."""
+"""Extensive tests for oaknut-zip - Acorn metadata ZIP extractor."""
 
 from __future__ import annotations
 
@@ -43,28 +43,28 @@ from click.testing import CliRunner
 import importlib.util
 import sys
 
-_nutzip_path = str(Path(__file__).resolve().parent.parent / "nutzip.py")
-_spec = importlib.util.spec_from_file_location("nutzip", _nutzip_path)
-nutzip = importlib.util.module_from_spec(_spec)
-sys.modules["nutzip"] = nutzip
-_spec.loader.exec_module(nutzip)
+_oaknut_zip_path = str(Path(__file__).resolve().parent.parent / "oaknut_zip.py")
+_spec = importlib.util.spec_from_file_location("oaknut_zip", _oaknut_zip_path)
+oaknut_zip = importlib.util.module_from_spec(_spec)
+sys.modules["oaknut_zip"] = oaknut_zip
+_spec.loader.exec_module(oaknut_zip)
 
-AcornMeta = nutzip.AcornMeta
-MetaFormat = nutzip.MetaFormat
-parse_sparkfs_extra = nutzip.parse_sparkfs_extra
-parse_encoded_filename = nutzip.parse_encoded_filename
-parse_inf_line = nutzip.parse_inf_line
-build_inf_index = nutzip.build_inf_index
-resolve_metadata = nutzip.resolve_metadata
-build_filename_suffix = nutzip.build_filename_suffix
-build_mos_filename_suffix = nutzip.build_mos_filename_suffix
-format_trad_inf_line = nutzip.format_trad_inf_line
-format_pieb_inf_line = nutzip.format_pieb_inf_line
-format_access = nutzip.format_access
-write_econet_xattrs = nutzip.write_econet_xattrs
-sanitise_extract_path = nutzip.sanitise_extract_path
-extract_member = nutzip.extract_member
-cli = nutzip.cli
+AcornMeta = oaknut_zip.AcornMeta
+MetaFormat = oaknut_zip.MetaFormat
+parse_sparkfs_extra = oaknut_zip.parse_sparkfs_extra
+parse_encoded_filename = oaknut_zip.parse_encoded_filename
+parse_inf_line = oaknut_zip.parse_inf_line
+build_inf_index = oaknut_zip.build_inf_index
+resolve_metadata = oaknut_zip.resolve_metadata
+build_filename_suffix = oaknut_zip.build_filename_suffix
+build_mos_filename_suffix = oaknut_zip.build_mos_filename_suffix
+format_trad_inf_line = oaknut_zip.format_trad_inf_line
+format_pieb_inf_line = oaknut_zip.format_pieb_inf_line
+format_access = oaknut_zip.format_access
+write_econet_xattrs = oaknut_zip.write_econet_xattrs
+sanitise_extract_path = oaknut_zip.sanitise_extract_path
+extract_member = oaknut_zip.extract_member
+cli = oaknut_zip.cli
 
 FIXTURES_DIRPATH = Path(__file__).resolve().parent / "fixtures"
 NETUTILS_ZIP_FILEPATH = FIXTURES_DIRPATH / "NetUtils.zip"
@@ -1399,7 +1399,7 @@ class TestCliExtract:
     def test_xattr_rejected_on_windows(self, tmp_path):
         zip_filepath = make_zip_file(tmp_path, [("FILE", b"data", None)])
         runner = CliRunner()
-        with patch("nutzip.sys") as mock_sys:
+        with patch("oaknut_zip.sys") as mock_sys:
             mock_sys.platform = "win32"
             result = runner.invoke(
                 cli,

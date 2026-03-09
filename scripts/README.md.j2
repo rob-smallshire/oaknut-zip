@@ -1,11 +1,11 @@
-# nutzip
+# oaknut-zip
 
 A standalone Python script for extracting ZIP files containing
 [Acorn computer](https://en.wikipedia.org/wiki/Acorn_Computers) metadata.
 
 Standard unzip tools silently discard the load addresses, execution addresses,
 and file attributes that Acorn systems (BBC Micro, Master, Archimedes, RISC OS
-machines) store in ZIP archives. nutzip preserves this metadata, writing it out
+machines) store in ZIP archives. oaknut-zip preserves this metadata, writing it out
 in your choice of four formats.
 
 ## The problem
@@ -27,12 +27,12 @@ ARM executables, this means you no longer know where in memory a program should
 be loaded or where execution should begin. For a PiEconetBridge fileserver, the
 files become unserviceable without their attributes.
 
-nutzip reads all three metadata sources from the ZIP and writes them out in a
+oaknut-zip reads all three metadata sources from the ZIP and writes them out in a
 format your target system can consume.
 
 ## Prerequisites
 
-nutzip requires only [`uv`](https://docs.astral.sh/uv/). `uv` handles
+oaknut-zip requires only [`uv`](https://docs.astral.sh/uv/). `uv` handles
 Python installation, dependency resolution, and virtual environments
 automatically --- you do not need to install anything else by hand.
 
@@ -61,23 +61,23 @@ for other methods including pip, pipx, Cargo, Conda, Winget, and Scoop.
 
 ## Usage
 
-nutzip is a single-file [PEP 723](https://peps.python.org/pep-0723/) script
+oaknut-zip is a single-file [PEP 723](https://peps.python.org/pep-0723/) script
 with an embedded dependency table. Run it directly:
 
 ```
-./nutzip.py <command> [options]
+./oaknut_zip.py <command> [options]
 ```
 
 Or explicitly via uv:
 
 ```
-uv run nutzip.py <command> [options]
+uv run oaknut_zip.py <command> [options]
 ```
 
 ### Commands
 
 ```
-$ ./nutzip.py --help
+$ ./oaknut_zip.py --help
 {{ help_output }}
 ```
 
@@ -86,7 +86,7 @@ $ ./nutzip.py --help
 ### list --- tabular view of all entries
 
 ```
-$ ./nutzip.py list NetUtils.zip
+$ ./oaknut_zip.py list NetUtils.zip
 {{ list_output }}
 ```
 
@@ -98,18 +98,18 @@ shows the RISC OS filetype extracted from the load address (when the top
 ### info --- summary statistics
 
 ```
-$ ./nutzip.py info NetUtils.zip
+$ ./oaknut_zip.py info NetUtils.zip
 {{ info_output }}
 ```
 
 ## Extracting an archive
 
 ```
-$ ./nutzip.py extract --help
+$ ./oaknut_zip.py extract --help
 {{ extract_help_output }}
 ```
 
-nutzip uses a consistent `<mechanism>-<flavour>` naming scheme for format
+oaknut-zip uses a consistent `<mechanism>-<flavour>` naming scheme for format
 identifiers. The same identifiers appear as metadata source labels in
 the `list` and `info` commands, and as `--meta-format` choices for output:
 
@@ -127,7 +127,7 @@ the `list` and `info` commands, and as `--meta-format` choices for output:
 ### Format 1: Traditional INF (default)
 
 ```
-./nutzip.py extract NetUtils.zip
+./oaknut_zip.py extract NetUtils.zip
 ```
 
 Each extracted file gets a companion `.inf` sidecar file:
@@ -156,7 +156,7 @@ This is the standard format understood by BBC Micro emulators, disc image tools
 ### Format 2: PiEconetBridge INF
 
 ```
-./nutzip.py extract --meta-format inf-pieb NetUtils.zip
+./oaknut_zip.py extract --meta-format inf-pieb NetUtils.zip
 ```
 
 Writes `.inf` sidecar files in the format used by
@@ -186,7 +186,7 @@ produced by the `parse_acorn_zip.pl` utility bundled with PiEconetBridge.
 ### Format 3: Extended attributes (xattr)
 
 ```
-./nutzip.py extract --meta-format xattr NetUtils.zip
+./oaknut_zip.py extract --meta-format xattr NetUtils.zip
 ```
 
 Writes metadata directly into the filesystem's extended attributes, with no
@@ -213,7 +213,7 @@ xattrs in preference to `.inf` files when both are present.
 ### Format 4: RISC OS filename encoding
 
 ```
-./nutzip.py extract --meta-format filename-riscos NetUtils.zip
+./oaknut_zip.py extract --meta-format filename-riscos NetUtils.zip
 ```
 
 Encodes metadata directly into the output filenames using comma-separated hex
@@ -228,7 +228,7 @@ the correct suffix are not double-encoded.
 ### Format 5: MOS filename encoding
 
 ```
-./nutzip.py extract --meta-format filename-mos NetUtils.zip
+./oaknut_zip.py extract --meta-format filename-mos NetUtils.zip
 ```
 
 Encodes metadata into output filenames using the `,load-exec` convention
@@ -244,7 +244,7 @@ load/exec addresses and does not special-case filetype-stamped files.
 ### Format 6: No metadata
 
 ```
-./nutzip.py extract --meta-format none NetUtils.zip
+./oaknut_zip.py extract --meta-format none NetUtils.zip
 ```
 
 Extracts files only, discarding all Acorn metadata. Equivalent to a standard
@@ -252,7 +252,7 @@ Extracts files only, discarding all Acorn metadata. Equivalent to a standard
 
 ## Metadata sources in ZIP files
 
-nutzip reads Acorn metadata from three sources within ZIP archives. When
+oaknut-zip reads Acorn metadata from three sources within ZIP archives. When
 multiple sources are present for a given entry, they are used in priority order:
 SparkFS extra fields, then bundled INF sidecar files, then filename encoding.
 
@@ -280,7 +280,7 @@ structure itself and survives transfers between any systems.
 ### Bundled INF sidecar files
 
 Some ZIP archives include `.inf` sidecar files alongside the data files they
-describe. nutzip detects and parses these automatically, supporting both
+describe. oaknut-zip detects and parses these automatically, supporting both
 flavours:
 
 - **Traditional INF** (`filename load exec length [access]`) --- reported
@@ -308,7 +308,7 @@ comma-separated hex suffix:
 |---------------------------------|----------------------------|-----------------------------|
 | `filename,xxx`                  | `HELLO,ffb`                | RISC OS filetype `FFB`      |
 
-nutzip also supports two additional forms that encode full load and exec
+oaknut-zip also supports two additional forms that encode full load and exec
 addresses for files that are not filetype-stamped:
 
 | Pattern                         | Example                    | Meaning                     |
@@ -323,7 +323,7 @@ in the [BeebWiki INF file format](https://beebwiki.mdfs.net/INF_file_format)
 specification, uses variable-width hex digits separated by a dash and is the
 convention used by MOS and SparkFS.
 
-nutzip strips these suffixes from output filenames during extraction.
+oaknut-zip strips these suffixes from output filenames during extraction.
 Use `--no-decode-filenames` to preserve the encoded filenames as-is.
 
 ## RISC OS filetype encoding

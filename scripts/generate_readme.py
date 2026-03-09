@@ -6,10 +6,10 @@
 #     "xattr>=1.0",
 # ]
 # ///
-"""Generate README.md by running nutzip commands and rendering a Jinja2 template.
+"""Generate README.md by running oaknut-zip commands and rendering a Jinja2 template.
 
 Ensures that all command output examples in the README are up-to-date with
-the actual behaviour of nutzip.py.
+the actual behaviour of oaknut_zip.py.
 
 Usage:
     ./scripts/generate_readme.py              # write to README.md
@@ -28,7 +28,7 @@ import xattr as xattr_mod
 from jinja2 import Environment, FileSystemLoader
 
 REPO_DIRPATH = Path(__file__).resolve().parent.parent
-NUTZIP_FILEPATH = REPO_DIRPATH / "nutzip.py"
+OAKNUT_ZIP_FILEPATH = REPO_DIRPATH / "oaknut_zip.py"
 TEMPLATE_DIRPATH = REPO_DIRPATH / "scripts"
 TEMPLATE_FILENAME = "README.md.j2"
 OUTPUT_FILEPATH = REPO_DIRPATH / "README.md"
@@ -38,14 +38,14 @@ EXAMPLE_INF_FILES = ["SetStation", "ReadMe"]
 EXAMPLE_XATTR_FILES = ["SetStation", "ReadMe"]
 
 
-def run_nutzip(*args: str) -> str:
-    """Run nutzip.py via uv and return stripped stdout."""
+def run_oaknut_zip(*args: str) -> str:
+    """Run oaknut_zip.py via uv and return stripped stdout."""
     uv = shutil.which("uv")
     if uv is None:
         print("ERROR: uv not found on PATH", file=sys.stderr)
         sys.exit(1)
     result = subprocess.run(
-        [uv, "run", str(NUTZIP_FILEPATH), *args],
+        [uv, "run", str(OAKNUT_ZIP_FILEPATH), *args],
         capture_output=True,
         text=True,
         check=True,
@@ -106,22 +106,22 @@ def generate() -> str:
     """Run all commands and render the README template."""
     fixture = str(FIXTURE_ZIP_FILEPATH)
 
-    help_output = run_nutzip("--help")
-    extract_help_output = run_nutzip("extract", "--help")
-    list_output = run_nutzip("list", fixture)
-    info_output = run_nutzip("info", fixture)
+    help_output = run_oaknut_zip("--help")
+    extract_help_output = run_oaknut_zip("extract", "--help")
+    list_output = run_oaknut_zip("list", fixture)
+    info_output = run_oaknut_zip("info", fixture)
 
     with tempfile.TemporaryDirectory() as tmpdir:
         tmp = Path(tmpdir)
 
         # Traditional INF extraction
         trad_dirpath = tmp / "trad"
-        run_nutzip("extract", fixture, "-d", str(trad_dirpath))
+        run_oaknut_zip("extract", fixture, "-d", str(trad_dirpath))
         trad_inf_examples = collect_trad_inf_examples(trad_dirpath)
 
         # PiEconetBridge INF extraction
         pieb_dirpath = tmp / "pieb"
-        run_nutzip(
+        run_oaknut_zip(
             "extract", "--meta-format", "inf-pieb", fixture,
             "-d", str(pieb_dirpath),
         )
@@ -129,7 +129,7 @@ def generate() -> str:
 
         # xattr extraction
         xattr_dirpath = tmp / "xattr"
-        run_nutzip(
+        run_oaknut_zip(
             "extract", "--meta-format", "xattr", fixture,
             "-d", str(xattr_dirpath),
         )
