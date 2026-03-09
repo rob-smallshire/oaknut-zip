@@ -90,11 +90,10 @@ $ ./nutzip.py list NetUtils.zip
 {{ list_output }}
 ```
 
-The **Source** column shows where the metadata was found: `sparkfs` for
-SparkFS/ARC0 extra fields, `inf-trad` or `inf-pieb` for bundled INF sidecar
-files, or `filename` for filename-encoded metadata. The **Type** column shows the
-RISC OS filetype extracted from the load address (when the top 12 bits are
-`0xFFF`).
+The **Source** column shows where the metadata was found (see the
+[format identifier table](#extracting-an-archive) below). The **Type** column
+shows the RISC OS filetype extracted from the load address (when the top
+12 bits are `0xFFF`).
 
 ### info --- summary statistics
 
@@ -110,7 +109,20 @@ $ ./nutzip.py extract --help
 {{ extract_help_output }}
 ```
 
-nutzip supports three output metadata formats, selected with `--meta-format`.
+nutzip uses a consistent `<mechanism>-<flavour>` naming scheme for format
+identifiers. The same identifiers appear as metadata source labels in
+the `list` and `info` commands, and as `--meta-format` choices for output:
+
+| Identifier        | As input source | As output format (`--meta-format`) |
+|-------------------|-----------------|------------------------------------|
+| `sparkfs`         | SparkFS/ARC0 extra fields in the ZIP structure | --- (not an output format) |
+| `inf-trad`        | Bundled traditional `.inf` sidecar files | Traditional INF sidecar files |
+| `inf-pieb`        | Bundled PiEconetBridge `.inf` sidecar files | PiEconetBridge INF sidecar files |
+| `filename`        | Metadata encoded in filenames (`,xxx`, `,load,exec`, `,load-exec`) | --- (not an output format) |
+| `filename-riscos` | --- | RISC OS filename encoding (`,xxx` or `,llllllll,eeeeeeee`) |
+| `filename-mos`    | --- | MOS filename encoding (`,load-exec`) |
+| `xattr`           | --- | Extended attributes (`user.econet_*`) |
+| `none`            | --- | No metadata (raw extraction) |
 
 ### Format 1: Traditional INF (default)
 
