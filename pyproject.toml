@@ -44,8 +44,25 @@ test = [
     "xattr>=1.0; sys_platform == 'darwin'",
 ]
 dev = [
+    "bump-my-version>=0.28.0",
     {include-group = "test"},
 ]
+
+[tool.bumpversion]
+current_version = "0.1.0"
+parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
+serialize = ["{major}.{minor}.{patch}"]
+tag = true
+commit = true
+message = "Bump version: {current_version} → {new_version}"
+tag_name = "v{new_version}"
+tag_message = "Bump version: {current_version} → {new_version}"
+files = [
+    { filename = "src/oaknut_zip/__init__.py" },
+]
+
+[tool.uv]
+publish-url = "https://upload.pypi.org/legacy/"
 
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]

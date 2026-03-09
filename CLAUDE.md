@@ -54,3 +54,14 @@ A RISC OS filetype is encoded in the load address when the top 12 bits equal `0x
 ## Testing
 
 Tests use pytest with Click's `CliRunner` for CLI tests. Integration tests use real-world ZIP fixtures. xattr tests are platform-aware (skipped on non-macOS). CI runs on Ubuntu, macOS, and Windows via GitHub Actions.
+
+## Releasing
+
+Uses `bump-my-version` to update `__version__` in `src/oaknut_zip/__init__.py`, commit, and tag. Pushing the tag triggers the publish workflow.
+
+```bash
+uv run --group dev bump-my-version bump patch   # 0.1.0 → 0.1.1
+uv run --group dev bump-my-version bump minor   # 0.1.0 → 0.2.0
+uv run --group dev bump-my-version bump major   # 0.1.0 → 1.0.0
+git push && git push --tags
+```
