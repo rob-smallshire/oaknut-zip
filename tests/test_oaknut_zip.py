@@ -1478,10 +1478,12 @@ class TestCliInfo:
 
 class TestCliVersion:
     def test_version(self):
+        from oaknut_zip import __version__
+
         runner = CliRunner()
         result = runner.invoke(cli, ["--version"])
         assert result.exit_code == 0
-        assert "0.1.0" in result.output
+        assert __version__ in result.output
 
 
 # =========================================================================

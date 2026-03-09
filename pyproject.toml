@@ -62,6 +62,7 @@ files = [
 ]
 
 [tool.uv]
+index-url = "https://pypi.org/simple/"
 publish-url = "https://upload.pypi.org/legacy/"
 
 [build-system]
