@@ -61,17 +61,29 @@ for other methods including pip, pipx, Cargo, Conda, Winget, and Scoop.
 
 ## Installation
 
-Install with `uv` (recommended), `pip`, or `pipx`:
+### Run without installing
+
+```
+uvx oaknut-zip <command> [options]
+```
+
+This always uses the latest published version, but has a small startup
+overhead on each invocation.
+
+### Persistent install
 
 ```
 uv tool install oaknut-zip
 ```
 
-Or run without installing:
+Subsequently run as just `oaknut-zip`:
 
 ```
-uvx oaknut-zip <command> [options]
+oaknut-zip <command> [options]
 ```
+
+This is faster to invoke, but you need `uv tool upgrade oaknut-zip` to
+pick up new versions.
 
 ## Usage
 
