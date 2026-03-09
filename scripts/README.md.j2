@@ -1,3 +1,5 @@
+<img src="https://raw.githubusercontent.com/rob-smallshire/oaknut-zip/main/docs/oaknut-zip-logo.png" alt="oaknut-zip" width="200">
+
 # oaknut-zip
 
 A Python tool for extracting ZIP files containing
