@@ -92,6 +92,51 @@ def extract(
     )
 
 
+def _tree_display_names(entries: list[dict]) -> list[str]:
+    """Build tree-formatted display names for archive entries.
+
+    Converts full paths into leaf names with Unicode box-drawing tree
+    prefixes (├──, └──, │) based on the directory hierarchy.
+    """
+    paths = [e[FILENAME_KEY].rstrip("/") for e in entries]
+    n = len(paths)
+    names: list[str] = []
+
+    for i in range(n):
+        parts = paths[i].split("/")
+        depth = len(parts) - 1
+        leaf = parts[-1]
+
+        if depth == 0:
+            names.append(leaf)
+            continue
+
+        prefixes: list[str] = []
+        for d in range(1, depth + 1):
+            parent_path = "/".join(parts[:d])
+            our_node = parts[d]
+            parent_prefix = parent_path + "/"
+
+            is_last = True
+            for j in range(i + 1, n):
+                pj = paths[j]
+                if not pj.startswith(parent_prefix):
+                    break
+                pj_component = pj[len(parent_prefix):].split("/")[0]
+                if pj_component != our_node:
+                    is_last = False
+                    break
+
+            if d == depth:
+                prefixes.append("└── " if is_last else "├── ")
+            else:
+                prefixes.append("    " if is_last else "│   ")
+
+        names.append("".join(prefixes) + leaf)
+
+    return names
+
+
 @cli.command(name="list")
 @click.argument("zipfile_path", type=click.Path(exists=True, path_type=Path))
 def list_cmd(zipfile_path: Path) -> None:
@@ -100,19 +145,20 @@ def list_cmd(zipfile_path: Path) -> None:
     from rich.table import Table
 
     entries = list_archive(zipfile_path)
+    tree_names = _tree_display_names(entries)
 
-    table = Table(title=zipfile_path.name, expand=True)
-    table.add_column("Filename", style="cyan", no_wrap=True, ratio=1)
-    table.add_column("Load", justify="right", style="green")
-    table.add_column("Exec", justify="right", style="green")
-    table.add_column("Length", justify="right")
-    table.add_column("Attr", justify="right", style="yellow")
-    table.add_column("Type", justify="right", style="magenta")
-    table.add_column("Source", style="dim")
+    table = Table(title=zipfile_path.name)
+    table.add_column("Filename", style="cyan", no_wrap=True)
+    table.add_column("Load", justify="right", style="green", no_wrap=True)
+    table.add_column("Exec", justify="right", style="green", no_wrap=True)
+    table.add_column("Length", justify="right", no_wrap=True)
+    table.add_column("Attr", justify="right", style="yellow", no_wrap=True)
+    table.add_column("Type", justify="right", style="magenta", no_wrap=True)
+    table.add_column("Source", style="dim", no_wrap=True)
 
-    for entry in entries:
+    for entry, display_name in zip(entries, tree_names):
         if entry[IS_DIR_KEY]:
-            table.add_row(entry[FILENAME_KEY], "", "", "", "", "", "dir")
+            table.add_row(display_name, "", "", "", "", "", "")
             continue
 
         if entry[LOAD_ADDR_KEY] is not None:
@@ -120,7 +166,7 @@ def list_cmd(zipfile_path: Path) -> None:
             ft_str = f"{ft:03X}" if ft is not None else ""
             attr_str = format_access(entry[ATTR_KEY]) if entry[ATTR_KEY] is not None else ""
             table.add_row(
-                entry[FILENAME_KEY],
+                display_name,
                 f"{entry[LOAD_ADDR_KEY]:08X}",
                 f"{entry[EXEC_ADDR_KEY]:08X}",
                 f"{entry[FILE_SIZE_KEY]:08X}",
@@ -130,7 +176,7 @@ def list_cmd(zipfile_path: Path) -> None:
             )
         else:
             table.add_row(
-                entry[FILENAME_KEY],
+                display_name,
                 "",
                 "",
                 f"{entry[FILE_SIZE_KEY]:08X}",

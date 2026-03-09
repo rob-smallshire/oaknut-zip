@@ -126,16 +126,16 @@ oaknut-zip uses a consistent `<mechanism>-<flavour>` naming scheme for format
 identifiers. The same identifiers appear as metadata source labels in
 the `list` and `info` commands, and as `--meta-format` choices for output:
 
-| Identifier        | As input source | As output format (`--meta-format`) |
-|-------------------|-----------------|------------------------------------|
-| `sparkfs`         | SparkFS/ARC0 extra fields in the ZIP structure | --- (not an output format) |
-| `inf-trad`        | Bundled traditional `.inf` sidecar files | Traditional INF sidecar files |
-| `inf-pieb`        | Bundled PiEconetBridge `.inf` sidecar files | PiEconetBridge INF sidecar files |
-| `filename`        | Metadata encoded in filenames (`,xxx`, `,load,exec`, `,load-exec`) | --- (not an output format) |
-| `filename-riscos` | --- | RISC OS filename encoding (`,xxx` or `,llllllll,eeeeeeee`) |
-| `filename-mos`    | --- | MOS filename encoding (`,load-exec`) |
-| `xattr`           | --- | Extended attributes (`user.econet_*`) |
-| `none`            | --- | No metadata (raw extraction) |
+| Identifier        | As input source                                                      | As output format (`--meta-format`)                          |
+|-------------------|----------------------------------------------------------------------|-------------------------------------------------------------|
+| `sparkfs`         | SparkFS/ARC0 extra fields in the ZIP structure                       | --- (not an output format)                                  |
+| `inf-trad`        | Bundled traditional `.inf` sidecar files                             | Traditional INF sidecar files                               |
+| `inf-pieb`        | Bundled PiEconetBridge `.inf` sidecar files                          | PiEconetBridge INF sidecar files                            |
+| `filename`        | Metadata encoded in filenames (`,xxx`, `,load,exec`, `,load-exec`)  | --- (not an output format)                                  |
+| `filename-riscos` | ---                                                                  | RISC OS filename encoding (`,xxx` or `,llllllll,eeeeeeee`) |
+| `filename-mos`    | ---                                                                  | MOS filename encoding (`,load-exec`)                        |
+| `xattr`           | ---                                                                  | Extended attributes (`user.econet_*`)                       |
+| `none`            | ---                                                                  | No metadata (raw extraction)                                |
 
 ### Format 1: Traditional INF (default)
 

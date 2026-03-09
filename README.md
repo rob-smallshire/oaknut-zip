@@ -111,23 +111,23 @@ Commands:
 
 ```
 $ oaknut-zip list NetUtils.zip
-                                  NetUtils.zip                                  
-┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━┳━━━━━━━━━┓
-┃ Filename        ┃     Load ┃     Exec ┃   Length ┃     Attr ┃ Type ┃ Source  ┃
-┡━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━╇━━━━━━━━━┩
-│ Free            │ FFFF0E10 │ FFFF0E10 │ 000001E6 │  C18325D │  F0E │ sparkfs │
-│ FSList          │ FFFF0900 │ FFFF0900 │ 00000200 │ 1415365D │  F09 │ sparkfs │
-│ PSList          │ FFFF0900 │ FFFF0900 │ 000001B5 │  B861C5D │  F09 │ sparkfs │
-│ Notify          │ FFFF0E23 │ FFFF0E23 │ 0000012A │  C6B1E5D │  F0E │ sparkfs │
-│ Remote          │ FFFF0E10 │ FFFF0E10 │ 000001ED │ 1347085D │  F0E │ sparkfs │
-│ Servers         │ FFFF0900 │ FFFF091A │ 000001CF │ 17162C5D │  F09 │ sparkfs │
-│ SetStation      │ FFFFDD00 │ FFFFDD00 │ 00000200 │ 1761575D │  FDD │ sparkfs │
-│ Stations        │ FFFF08D5 │ FFFF08E1 │ 0000022B │ 13615A57 │  F08 │ sparkfs │
-│ SJMon           │ FFFF1B00 │ FFFF1B00 │ 00000D7E │   F6040D │  F1B │ sparkfs │
-│ Users           │ FFFF0E23 │ FFFF0E23 │ 00000139 │   15355D │  F0E │ sparkfs │
-│ View            │ FFFF0900 │ FFFF0904 │ 000001FF │ 135A115D │  F09 │ sparkfs │
-│ ReadMe          │ FFFFFF52 │ 2FEEAFD0 │ 00000255 │  BEB2A55 │  FFF │ sparkfs │
-└─────────────────┴──────────┴──────────┴──────────┴──────────┴──────┴─────────┘
+                               NetUtils.zip                                
+┏━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━┳━━━━━━━━━┓
+┃ Filename   ┃     Load ┃     Exec ┃   Length ┃     Attr ┃ Type ┃ Source  ┃
+┡━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━╇━━━━━━━━━┩
+│ Free       │ FFFF0E10 │ FFFF0E10 │ 000001E6 │  C18325D │  F0E │ sparkfs │
+│ FSList     │ FFFF0900 │ FFFF0900 │ 00000200 │ 1415365D │  F09 │ sparkfs │
+│ PSList     │ FFFF0900 │ FFFF0900 │ 000001B5 │  B861C5D │  F09 │ sparkfs │
+│ Notify     │ FFFF0E23 │ FFFF0E23 │ 0000012A │  C6B1E5D │  F0E │ sparkfs │
+│ Remote     │ FFFF0E10 │ FFFF0E10 │ 000001ED │ 1347085D │  F0E │ sparkfs │
+│ Servers    │ FFFF0900 │ FFFF091A │ 000001CF │ 17162C5D │  F09 │ sparkfs │
+│ SetStation │ FFFFDD00 │ FFFFDD00 │ 00000200 │ 1761575D │  FDD │ sparkfs │
+│ Stations   │ FFFF08D5 │ FFFF08E1 │ 0000022B │ 13615A57 │  F08 │ sparkfs │
+│ SJMon      │ FFFF1B00 │ FFFF1B00 │ 00000D7E │   F6040D │  F1B │ sparkfs │
+│ Users      │ FFFF0E23 │ FFFF0E23 │ 00000139 │   15355D │  F0E │ sparkfs │
+│ View       │ FFFF0900 │ FFFF0904 │ 000001FF │ 135A115D │  F09 │ sparkfs │
+│ ReadMe     │ FFFFFF52 │ 2FEEAFD0 │ 00000255 │  BEB2A55 │  FFF │ sparkfs │
+└────────────┴──────────┴──────────┴──────────┴──────────┴──────┴─────────┘
 ```
 
 The **Source** column shows where the metadata was found (see the
@@ -182,16 +182,16 @@ oaknut-zip uses a consistent `<mechanism>-<flavour>` naming scheme for format
 identifiers. The same identifiers appear as metadata source labels in
 the `list` and `info` commands, and as `--meta-format` choices for output:
 
-| Identifier        | As input source | As output format (`--meta-format`) |
-|-------------------|-----------------|------------------------------------|
-| `sparkfs`         | SparkFS/ARC0 extra fields in the ZIP structure | --- (not an output format) |
-| `inf-trad`        | Bundled traditional `.inf` sidecar files | Traditional INF sidecar files |
-| `inf-pieb`        | Bundled PiEconetBridge `.inf` sidecar files | PiEconetBridge INF sidecar files |
-| `filename`        | Metadata encoded in filenames (`,xxx`, `,load,exec`, `,load-exec`) | --- (not an output format) |
-| `filename-riscos` | --- | RISC OS filename encoding (`,xxx` or `,llllllll,eeeeeeee`) |
-| `filename-mos`    | --- | MOS filename encoding (`,load-exec`) |
-| `xattr`           | --- | Extended attributes (`user.econet_*`) |
-| `none`            | --- | No metadata (raw extraction) |
+| Identifier        | As input source                                                      | As output format (`--meta-format`)                          |
+|-------------------|----------------------------------------------------------------------|-------------------------------------------------------------|
+| `sparkfs`         | SparkFS/ARC0 extra fields in the ZIP structure                       | --- (not an output format)                                  |
+| `inf-trad`        | Bundled traditional `.inf` sidecar files                             | Traditional INF sidecar files                               |
+| `inf-pieb`        | Bundled PiEconetBridge `.inf` sidecar files                          | PiEconetBridge INF sidecar files                            |
+| `filename`        | Metadata encoded in filenames (`,xxx`, `,load,exec`, `,load-exec`)  | --- (not an output format)                                  |
+| `filename-riscos` | ---                                                                  | RISC OS filename encoding (`,xxx` or `,llllllll,eeeeeeee`) |
+| `filename-mos`    | ---                                                                  | MOS filename encoding (`,load-exec`)                        |
+| `xattr`           | ---                                                                  | Extended attributes (`user.econet_*`)                       |
+| `none`            | ---                                                                  | No metadata (raw extraction)                                |
 
 ### Format 1: Traditional INF (default)
 
