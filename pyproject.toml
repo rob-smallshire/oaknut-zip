@@ -1,0 +1,51 @@
+[project]
+name = "oaknut-zip"
+dynamic = ["version"]
+authors = [{ name = "Robert Smallshire", email = "robert@smallshire.org.uk" }]
+description = "Work with ZIP files containing Acorn computer metadata."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+    "click>=8.0",
+    "rich>=13.0",
+    "xattr>=1.0; sys_platform == 'darwin'",
+]
+
+[project.scripts]
+oaknut-zip = "oaknut_zip.cli:cli"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.dynamic]
+version = { attr = "oaknut_zip.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[dependency-groups]
+test = [
+    "pytest>=7.0",
+]
+dev = [
+    {include-group = "test"},
+]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"

@@ -9,7 +9,7 @@
 """Generate README.md by running oaknut-zip commands and rendering a Jinja2 template.
 
 Ensures that all command output examples in the README are up-to-date with
-the actual behaviour of oaknut_zip.py.
+the actual behaviour of the oaknut-zip package.
 
 Usage:
     ./scripts/generate_readme.py              # write to README.md
@@ -28,7 +28,6 @@ import xattr as xattr_mod
 from jinja2 import Environment, FileSystemLoader
 
 REPO_DIRPATH = Path(__file__).resolve().parent.parent
-OAKNUT_ZIP_FILEPATH = REPO_DIRPATH / "oaknut_zip.py"
 TEMPLATE_DIRPATH = REPO_DIRPATH / "scripts"
 TEMPLATE_FILENAME = "README.md.j2"
 OUTPUT_FILEPATH = REPO_DIRPATH / "README.md"
@@ -45,7 +44,7 @@ def run_oaknut_zip(*args: str) -> str:
         print("ERROR: uv not found on PATH", file=sys.stderr)
         sys.exit(1)
     result = subprocess.run(
-        [uv, "run", str(OAKNUT_ZIP_FILEPATH), *args],
+        [uv, "run", "--project", str(REPO_DIRPATH), "oaknut-zip", *args],
         capture_output=True,
         text=True,
         check=True,

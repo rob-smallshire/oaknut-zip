@@ -39,32 +39,24 @@ def list_xattrs(filepath: Path) -> list[str]:
 
 from click.testing import CliRunner
 
-# Import from the script - register module before exec to avoid __module__ issues
-import importlib.util
-import sys
-
-_oaknut_zip_path = str(Path(__file__).resolve().parent.parent / "oaknut_zip.py")
-_spec = importlib.util.spec_from_file_location("oaknut_zip", _oaknut_zip_path)
-oaknut_zip = importlib.util.module_from_spec(_spec)
-sys.modules["oaknut_zip"] = oaknut_zip
-_spec.loader.exec_module(oaknut_zip)
-
-AcornMeta = oaknut_zip.AcornMeta
-MetaFormat = oaknut_zip.MetaFormat
-parse_sparkfs_extra = oaknut_zip.parse_sparkfs_extra
-parse_encoded_filename = oaknut_zip.parse_encoded_filename
-parse_inf_line = oaknut_zip.parse_inf_line
-build_inf_index = oaknut_zip.build_inf_index
-resolve_metadata = oaknut_zip.resolve_metadata
-build_filename_suffix = oaknut_zip.build_filename_suffix
-build_mos_filename_suffix = oaknut_zip.build_mos_filename_suffix
-format_trad_inf_line = oaknut_zip.format_trad_inf_line
-format_pieb_inf_line = oaknut_zip.format_pieb_inf_line
-format_access = oaknut_zip.format_access
-write_econet_xattrs = oaknut_zip.write_econet_xattrs
-sanitise_extract_path = oaknut_zip.sanitise_extract_path
-extract_member = oaknut_zip.extract_member
-cli = oaknut_zip.cli
+from oaknut_zip import (
+    AcornMeta,
+    MetaFormat,
+    build_filename_suffix,
+    build_inf_index,
+    build_mos_filename_suffix,
+    extract_member,
+    format_access,
+    format_pieb_inf_line,
+    format_trad_inf_line,
+    parse_encoded_filename,
+    parse_inf_line,
+    parse_sparkfs_extra,
+    resolve_metadata,
+    sanitise_extract_path,
+    write_econet_xattrs,
+)
+from oaknut_zip.cli import cli
 
 FIXTURES_DIRPATH = Path(__file__).resolve().parent / "fixtures"
 NETUTILS_ZIP_FILEPATH = FIXTURES_DIRPATH / "NetUtils.zip"
@@ -1399,7 +1391,7 @@ class TestCliExtract:
     def test_xattr_rejected_on_windows(self, tmp_path):
         zip_filepath = make_zip_file(tmp_path, [("FILE", b"data", None)])
         runner = CliRunner()
-        with patch("oaknut_zip.sys") as mock_sys:
+        with patch("oaknut_zip.api.sys") as mock_sys:
             mock_sys.platform = "win32"
             result = runner.invoke(
                 cli,
