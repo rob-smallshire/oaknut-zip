@@ -8,6 +8,9 @@ build/
 .venv/
 *.egg
 
+# Library package — lockfile is for applications only
+uv.lock
+
 # PyCharm / JetBrains
 .idea/
 
