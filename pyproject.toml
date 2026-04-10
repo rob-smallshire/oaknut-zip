@@ -24,6 +24,11 @@ dependencies = [
     "xattr>=1.0; sys_platform == 'darwin'",
 ]
 
+[project.urls]
+Homepage = "https://github.com/rob-smallshire/oaknut-zip"
+Repository = "https://github.com/rob-smallshire/oaknut-zip"
+Issues = "https://github.com/rob-smallshire/oaknut-zip/issues"
+
 [project.scripts]
 oaknut-zip = "oaknut_zip.cli:cli"
 
