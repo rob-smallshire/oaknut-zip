@@ -51,6 +51,10 @@ When multiple sources exist, higher-priority sources win via `resolve_metadata()
 
 A RISC OS filetype is encoded in the load address when the top 12 bits equal `0xFFF`. Bits 8-19 then contain the 3-digit hex filetype.
 
+### SparkFS ARC0 Attr field: mask to low byte
+
+The SparkFS/ARC0 extra field stores "file attributes" as a 32-bit word, but the Info-ZIP spec and David Pilling's own SparkFS source only define bits 0-7 (the standard RISC OS access byte). Genuine RISC OS tooling writes zero in bits 8-31, but several real-world archives (e.g. the MDFS-sourced fixtures) contain junk in the upper 24 bits. `parse_sparkfs_extra` masks the field with `& 0xFF` so `AcornMeta.attr` always holds a valid access byte. Do not remove the mask; the regression tests assert `user.acorn.attr == b"5D"` / `user.econet_perm == b"5D"` on `NetUtils.zip`'s `Free` file.
+
 ## Testing
 
 Tests use pytest with Click's `CliRunner` for CLI tests. Integration tests use real-world ZIP fixtures. xattr tests are platform-aware (skipped on non-macOS). CI runs on Ubuntu, macOS, and Windows via GitHub Actions.

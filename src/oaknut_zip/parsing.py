@@ -39,6 +39,14 @@ def parse_sparkfs_extra(extra: bytes) -> AcornMeta | None:
         8       4     Exec address (little-endian uint32)
         12      4     Attributes (little-endian uint32)
         16      4     Reserved (zero)
+
+    The Info-ZIP / David Pilling SparkFS specification defines only
+    bits 0-7 of the Attributes field (the standard RISC OS access
+    byte: R, W, L, PR, PW). Bits 8-31 have no documented meaning.
+    In practice, archives produced by genuine RISC OS tooling write
+    zero in the upper 24 bits, but some non-RISC-OS producers leave
+    junk there. We mask to the low 8 bits so the stored attribute
+    matches the Access enum semantics used throughout oaknut-file.
     """
     offset = 0
     while offset + 4 <= len(extra):
@@ -58,7 +66,7 @@ def parse_sparkfs_extra(extra: bytes) -> AcornMeta | None:
                 meta = AcornMeta(
                     load_addr=load_addr,
                     exec_addr=exec_addr,
-                    attr=attr,
+                    attr=attr & 0xFF,
                 )
                 meta.filetype = meta.infer_filetype()
                 return meta

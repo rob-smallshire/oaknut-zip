@@ -214,10 +214,10 @@ Each extracted file gets a companion `.inf` sidecar file:
 
 ```
 $ cat SetStation.inf
-SetStation  FFFFDD00 FFFFDD00 00000200 1761575D
+SetStation  FFFFDD00 FFFFDD00 00000200 5D
 
 $ cat ReadMe.inf
-ReadMe      FFFFFF52 2FEEAFD0 00000255 BEB2A55
+ReadMe      FFFFFF52 2FEEAFD0 00000255 55
 ```
 
 The fields are space-separated, with the filename left-padded to 11 characters:
@@ -248,10 +248,10 @@ Writes `.inf` sidecar files in the format used by
 
 ```
 $ cat SetStation.inf
-0 ffffdd00 ffffdd00 1761575d
+0 ffffdd00 ffffdd00 5d
 
 $ cat ReadMe.inf
-0 ffffff52 2feeafd0 beb2a55
+0 ffffff52 2feeafd0 55
 ```
 
 The fields, all lowercase hex:
@@ -282,12 +282,12 @@ Writes metadata directly into the filesystem's extended attributes using the
 
 ```
 $ xattr -l SetStation
-user.acorn.attr: 1761575D
+user.acorn.attr: 5D
 user.acorn.exec: FFFFDD00
 user.acorn.load: FFFFDD00
 
 $ xattr -l ReadMe
-user.acorn.attr: BEB2A55
+user.acorn.attr: 55
 user.acorn.exec: 2FEEAFD0
 user.acorn.load: FFFFFF52
 ```
@@ -318,13 +318,13 @@ $ xattr -l SetStation
 user.econet_exec: FFFFDD00
 user.econet_load: FFFFDD00
 user.econet_owner: 0000
-user.econet_perm: 1761575D
+user.econet_perm: 5D
 
 $ xattr -l ReadMe
 user.econet_exec: 2FEEAFD0
 user.econet_load: FFFFFF52
 user.econet_owner: 0000
-user.econet_perm: BEB2A55
+user.econet_perm: 55
 ```
 
 The attribute names and value formats match PiEconetBridge's C implementation
@@ -408,6 +408,28 @@ by [David Pilling](http://www.davidpilling.com/wiki/index.php/SparkFS):
 
 This is the most reliable metadata source, as it is embedded in the ZIP
 structure itself and survives transfers between any systems.
+
+#### A note on the 32-bit attributes field
+
+Although the attributes field is stored as a 32-bit little-endian word,
+the [Info-ZIP specification](https://libzip.org/specifications/extrafld.txt)
+and [David Pilling's own SparkFS source](https://www.davidpilling.com/software/zipinfo.txt)
+define meaning only for the low 8 bits --- the standard RISC OS access
+byte (`R`, `W`, `L`, public `R`, public `W`, plus a couple of reserved
+bits). Bits 8-31 have no documented semantics. Genuine RISC OS tooling
+(SparkFS, SparkPlug) writes zero in the upper 24 bits, and archives
+with host OS `13` (Acorn RISC OS) in the ZIP "version made by" field
+are clean.
+
+In the wild, however, some non-RISC-OS producers leave junk in the
+upper 24 bits of the word --- stale memory, tool-private state, or
+similar. The archives in `tests/fixtures/` sourced from
+[MDFS](https://mdfs.net/) are in this shape: the access byte in bits
+0-7 is correct and self-consistent across archives, but bits 8-31 are
+effectively random. oaknut-zip masks the Attr field to its low 8 bits
+when populating metadata, so the access byte written to `.inf`
+sidecars and extended attributes is always a valid two-digit hex
+value.
 
 ### Bundled INF sidecar files
 

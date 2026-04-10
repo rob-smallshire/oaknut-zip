@@ -876,6 +876,11 @@ class TestNetUtilsZip:
         assert get_xattr(out / "Free", "user.econet_load") == b"FFFF0E10"
         assert get_xattr(out / "Free", "user.econet_exec") == b"FFFF0E10"
         assert get_xattr(out / "Free", "user.econet_owner") == b"0000"
+        # Regression: the SparkFS ARC0 Attr field in NetUtils.zip has
+        # junk in bits 8-31 (the archive was not produced by genuine
+        # RISC OS tooling). The parser must mask to the low byte so
+        # the written perm is exactly two hex digits.
+        assert get_xattr(out / "Free", "user.econet_perm") == b"5D"
 
     @requires_xattr
     def test_extract_xattr_acorn(self, tmp_path):
@@ -896,6 +901,10 @@ class TestNetUtilsZip:
         attrs = list_xattrs(out / "Free")
         assert get_xattr(out / "Free", "user.acorn.load") == b"FFFF0E10"
         assert get_xattr(out / "Free", "user.acorn.exec") == b"FFFF0E10"
+        # Regression: NetUtils.zip's SparkFS Attr field has junk in
+        # bits 8-31; the parser must mask to the low byte so the
+        # written attr is exactly two hex digits.
+        assert get_xattr(out / "Free", "user.acorn.attr") == b"5D"
         # Acorn namespace only — no econet_* should have been written.
         assert not any(a.startswith("user.econet_") for a in attrs)
 

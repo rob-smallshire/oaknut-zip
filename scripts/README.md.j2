@@ -326,6 +326,28 @@ by [David Pilling](http://www.davidpilling.com/wiki/index.php/SparkFS):
 This is the most reliable metadata source, as it is embedded in the ZIP
 structure itself and survives transfers between any systems.
 
+#### A note on the 32-bit attributes field
+
+Although the attributes field is stored as a 32-bit little-endian word,
+the [Info-ZIP specification](https://libzip.org/specifications/extrafld.txt)
+and [David Pilling's own SparkFS source](https://www.davidpilling.com/software/zipinfo.txt)
+define meaning only for the low 8 bits --- the standard RISC OS access
+byte (`R`, `W`, `L`, public `R`, public `W`, plus a couple of reserved
+bits). Bits 8-31 have no documented semantics. Genuine RISC OS tooling
+(SparkFS, SparkPlug) writes zero in the upper 24 bits, and archives
+with host OS `13` (Acorn RISC OS) in the ZIP "version made by" field
+are clean.
+
+In the wild, however, some non-RISC-OS producers leave junk in the
+upper 24 bits of the word --- stale memory, tool-private state, or
+similar. The archives in `tests/fixtures/` sourced from
+[MDFS](https://mdfs.net/) are in this shape: the access byte in bits
+0-7 is correct and self-consistent across archives, but bits 8-31 are
+effectively random. oaknut-zip masks the Attr field to its low 8 bits
+when populating metadata, so the access byte written to `.inf`
+sidecars and extended attributes is always a valid two-digit hex
+value.
+
 ### Bundled INF sidecar files
 
 Some ZIP archives include `.inf` sidecar files alongside the data files they
