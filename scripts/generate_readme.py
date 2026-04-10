@@ -126,10 +126,10 @@ def generate() -> str:
         )
         pieb_inf_examples = collect_pieb_inf_examples(pieb_dirpath)
 
-        # xattr extraction
+        # xattr extraction (PiEconetBridge namespace)
         xattr_dirpath = tmp / "xattr"
         run_oaknut_zip(
-            "extract", "--meta-format", "xattr", fixture,
+            "extract", "--meta-format", "xattr-pieb", fixture,
             "-d", str(xattr_dirpath),
         )
         xattr_examples = collect_xattr_examples(xattr_dirpath)
