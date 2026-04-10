@@ -48,9 +48,14 @@ def cli() -> None:
 @click.option("-v", "--verbose", is_flag=True, help="Show extraction progress.")
 @click.option(
     "--meta-format",
-    type=click.Choice(["inf-trad", "inf-pieb", "xattr", "filename-riscos", "filename-mos", "none"], case_sensitive=False),
+    type=click.Choice(
+        ["inf-trad", "inf-pieb", "xattr-acorn", "xattr-pieb",
+         "filename-riscos", "filename-mos", "none"],
+        case_sensitive=False,
+    ),
     default="inf-trad",
-    help="Metadata format: inf-trad, inf-pieb, xattr, filename-riscos, filename-mos, or none.",
+    help="Metadata format: inf-trad, inf-pieb, xattr-acorn, xattr-pieb, "
+         "filename-riscos, filename-mos, or none.",
 )
 @click.option(
     "--no-decode-filenames",

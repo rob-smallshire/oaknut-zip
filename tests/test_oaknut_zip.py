@@ -868,7 +868,7 @@ class TestNetUtilsZip:
                 "-d",
                 str(out),
                 "--meta-format",
-                "xattr",
+                "xattr-pieb",
             ],
         )
         assert result.exit_code == 0
@@ -1229,7 +1229,7 @@ class TestExtractMember:
                 zf,
                 info,
                 tmp_path / "out",
-                meta_format=MetaFormat.XATTR,
+                meta_format=MetaFormat.XATTR_PIEB,
                 owner=5,
             )
         prog_filepath = tmp_path / "out" / "PROG"
@@ -1395,7 +1395,7 @@ class TestCliExtract:
             mock_sys.platform = "win32"
             result = runner.invoke(
                 cli,
-                ["extract", "--meta-format", "xattr", str(zip_filepath), "-d", str(tmp_path / "out")],
+                ["extract", "--meta-format", "xattr-pieb", str(zip_filepath), "-d", str(tmp_path / "out")],
             )
         assert result.exit_code != 0
         assert "not supported on Windows" in result.output
@@ -1531,7 +1531,7 @@ class TestCliBundledInf:
         runner = CliRunner()
         result = runner.invoke(
             cli,
-            ["extract", "--meta-format", "xattr", str(zip_filepath), "-d", str(out)],
+            ["extract", "--meta-format", "xattr-pieb", str(zip_filepath), "-d", str(out)],
         )
         assert result.exit_code == 0
         assert (out / "FILE").is_file()
@@ -1633,7 +1633,7 @@ class TestSwehBundledInf:
         runner = CliRunner()
         result = runner.invoke(
             cli,
-            ["extract", "--meta-format", "xattr", str(SWEH_ZIP_FILEPATH), "-d", str(out)],
+            ["extract", "--meta-format", "xattr-pieb", str(SWEH_ZIP_FILEPATH), "-d", str(out)],
         )
         assert result.exit_code == 0
         # Check that at least one file has xattrs

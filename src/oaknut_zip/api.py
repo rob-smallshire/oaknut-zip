@@ -15,6 +15,7 @@ from .formatting import (
     format_trad_inf_line,
     write_econet_xattrs,
 )
+from oaknut_file import write_acorn_xattrs
 from .models import (
     ATTR_KEY,
     DIRS_KEY,
@@ -127,7 +128,7 @@ def extract_member(
     if meta_format is None or not (meta and meta.has_metadata):
         return
 
-    if meta_format == MetaFormat.XATTR:
+    if meta_format == MetaFormat.XATTR_PIEB:
         write_econet_xattrs(
             output_filepath,
             load_addr=meta.load_addr,
@@ -137,7 +138,17 @@ def extract_member(
         )
         if verbose:
             rel = output_filepath.relative_to(output_dirpath)
-            click.echo(f"    xattr: {rel}")
+            click.echo(f"    xattr-pieb: {rel}")
+    elif meta_format == MetaFormat.XATTR_ACORN:
+        write_acorn_xattrs(
+            output_filepath,
+            load_addr=meta.load_addr,
+            exec_addr=meta.exec_addr,
+            attr=meta.attr,
+        )
+        if verbose:
+            rel = output_filepath.relative_to(output_dirpath)
+            click.echo(f"    xattr-acorn: {rel}")
     elif meta_format in (MetaFormat.FILENAME_RISCOS, MetaFormat.FILENAME_MOS):
         if meta_format == MetaFormat.FILENAME_MOS:
             suffix = build_mos_filename_suffix(meta)
@@ -206,7 +217,7 @@ def extract_archive(
     if not zipfile.is_zipfile(zipfile_path):
         raise click.ClickException(f"{zipfile_path} is not a valid ZIP file")
 
-    if meta_format == MetaFormat.XATTR and sys.platform == "win32":
+    if meta_format in (MetaFormat.XATTR_ACORN, MetaFormat.XATTR_PIEB) and sys.platform == "win32":
         raise click.ClickException(
             "Extended attributes are not supported on Windows. "
             "Use --meta-format inf-trad, inf-pieb, or filename-riscos instead."

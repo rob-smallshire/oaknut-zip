@@ -177,9 +177,10 @@ Options:
   -d, --output-dir PATH           Output directory (default: ZIP filename
                                   without extension).
   -v, --verbose                   Show extraction progress.
-  --meta-format [inf-trad|inf-pieb|xattr|filename-riscos|filename-mos|none]
-                                  Metadata format: inf-trad, inf-pieb, xattr,
-                                  filename-riscos, filename-mos, or none.
+  --meta-format [inf-trad|inf-pieb|xattr-acorn|xattr-pieb|filename-riscos|filename-mos|none]
+                                  Metadata format: inf-trad, inf-pieb, xattr-
+                                  acorn, xattr-pieb, filename-riscos,
+                                  filename-mos, or none.
   --no-decode-filenames           Do not decode metadata from filename
                                   suffixes (,xxx or ,load,exec).
   --owner INTEGER                 Econet owner ID for inf-pieb files (default:
