@@ -6,9 +6,10 @@ from pathlib import Path
 
 import click
 
+from oaknut_file import MetaFormat, format_access_text
+
 from . import __version__
 from .api import archive_info, extract_archive, list_archive
-from .formatting import format_access_text
 from .models import (
     ATTR_KEY,
     DIRS_KEY,
@@ -26,7 +27,6 @@ from .models import (
     SOURCE_KEY,
     SPARKFS_COUNT_KEY,
     TOTAL_KEY,
-    MetaFormat,
 )
 
 
@@ -66,7 +66,7 @@ def cli() -> None:
     "--owner",
     type=int,
     default=0,
-    help="Econet owner ID for inf-pieb files (default: 0 = SYST).",
+    help="Econet owner ID for inf-pieb and xattr-pieb outputs (default: 0 = SYST).",
 )
 def extract(
     zipfile_path: Path,

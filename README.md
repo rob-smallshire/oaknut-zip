@@ -15,7 +15,7 @@ A Python tool for extracting ZIP files containing
 Standard unzip tools silently discard the load addresses, execution addresses,
 and file attributes that Acorn systems (BBC Micro, Master, RISC OS
 machines) store in ZIP archives. oaknut-zip preserves this metadata, writing it out
-in your choice of four formats.
+in your choice of several output formats.
 
 ## The problem
 
@@ -183,8 +183,8 @@ Options:
                                   filename-mos, or none.
   --no-decode-filenames           Do not decode metadata from filename
                                   suffixes (,xxx or ,load,exec).
-  --owner INTEGER                 Econet owner ID for inf-pieb files (default:
-                                  0 = SYST).
+  --owner INTEGER                 Econet owner ID for inf-pieb and xattr-pieb
+                                  outputs (default: 0 = SYST).
   --help                          Show this message and exit.
 ```
 
@@ -200,7 +200,8 @@ the `list` and `info` commands, and as `--meta-format` choices for output:
 | `filename`        | Metadata encoded in filenames (`,xxx`, `,load,exec`, `,load-exec`)  | --- (not an output format)                                  |
 | `filename-riscos` | ---                                                                  | RISC OS filename encoding (`,xxx` or `,llllllll,eeeeeeee`) |
 | `filename-mos`    | ---                                                                  | MOS filename encoding (`,load-exec`)                        |
-| `xattr`           | ---                                                                  | Extended attributes (`user.econet_*`)                       |
+| `xattr-acorn`     | ---                                                                  | Extended attributes (`user.acorn.*`)                        |
+| `xattr-pieb`      | ---                                                                  | Extended attributes (`user.econet_*`, PiEconetBridge)       |
 | `none`            | ---                                                                  | No metadata (raw extraction)                                |
 
 ### Format 1: Traditional INF (default)
@@ -270,14 +271,47 @@ PiEconetBridge reads this format from `<filename>.inf` when extended attribute
 support is unavailable on the host filesystem (e.g. FAT32). This is the format
 produced by the `parse_acorn_zip.pl` utility bundled with PiEconetBridge.
 
-### Format 3: Extended attributes (xattr)
+### Format 3: Extended attributes (Acorn namespace)
 
 ```
-oaknut-zip extract --meta-format xattr NetUtils.zip
+oaknut-zip extract --meta-format xattr-acorn NetUtils.zip
 ```
 
-Writes metadata directly into the filesystem's extended attributes, with no
-sidecar files:
+Writes metadata directly into the filesystem's extended attributes using the
+`user.acorn.*` namespace, with no sidecar files:
+
+```
+$ xattr -l SetStation
+user.acorn.attr: 1761575D
+user.acorn.exec: FFFFDD00
+user.acorn.load: FFFFDD00
+
+$ xattr -l ReadMe
+user.acorn.attr: BEB2A55
+user.acorn.exec: 2FEEAFD0
+user.acorn.load: FFFFFF52
+```
+
+The attribute names and value formats:
+
+| Attribute         | Format (sprintf) | Example      |
+|-------------------|------------------|--------------|
+| `user.acorn.load` | `%08X`           | `FFFFDD00`   |
+| `user.acorn.exec` | `%08X`           | `FFFFDD00`   |
+| `user.acorn.attr` | `%02X`           | `03`         |
+
+This is the oaknut-file convention, free of the Econet/PiEconetBridge naming
+legacy. The `user.acorn.attr` attribute is written only when attribute
+information is available; there is no Econet owner field.
+
+### Format 4: Extended attributes (PiEconetBridge namespace)
+
+```
+oaknut-zip extract --meta-format xattr-pieb NetUtils.zip
+```
+
+Writes metadata using the `user.econet_*` namespace defined by
+[PiEconetBridge](https://github.com/cr12925/PiEconetBridge):
 
 ```
 $ xattr -l SetStation
@@ -305,9 +339,10 @@ exactly:
 
 This is the preferred format for PiEconetBridge when the host filesystem
 supports extended attributes. PiEconetBridge reads xattrs in preference
-to `.inf` files when both are present.
+to `.inf` files when both are present. Use `--owner` to set the Econet owner
+ID (default 0 = SYST).
 
-### Format 4: RISC OS filename encoding
+### Format 5: RISC OS filename encoding
 
 ```
 oaknut-zip extract --meta-format filename-riscos NetUtils.zip
@@ -322,7 +357,7 @@ This is the most portable format --- it requires no filesystem-specific
 support and survives transfers between any systems. Files already carrying
 the correct suffix are not double-encoded.
 
-### Format 5: MOS filename encoding
+### Format 6: MOS filename encoding
 
 ```
 oaknut-zip extract --meta-format filename-mos NetUtils.zip
@@ -338,7 +373,7 @@ This is the convention used by MOS and SparkFS when encoding addresses in
 filenames. Unlike the RISC OS form (Format 4), it always encodes full
 load/exec addresses and does not special-case filetype-stamped files.
 
-### Format 6: No metadata
+### Format 7: No metadata
 
 ```
 oaknut-zip extract --meta-format none NetUtils.zip
@@ -387,9 +422,9 @@ flavours:
 
 When extracting, bundled `.inf` files are consumed as a metadata source rather
 than extracted as separate files. The metadata is then written in whatever
-output format was requested (inf-trad, inf-pieb, xattr, etc.). This allows,
-for example, converting a PiEconetBridge archive to xattr format in a single
-step.
+output format was requested (inf-trad, inf-pieb, xattr-acorn, xattr-pieb,
+etc.). This allows, for example, converting a PiEconetBridge archive to
+`user.acorn.*` extended attributes in a single step.
 
 With `--meta-format none`, bundled `.inf` files are extracted as-is (no
 metadata is consumed).

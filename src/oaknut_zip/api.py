@@ -8,14 +8,22 @@ from pathlib import Path
 
 import click
 
-from .formatting import (
+from oaknut_file import (
+    AcornMeta,
+    MetaFormat,
+    SOURCE_DIR,
+    SOURCE_FILENAME,
+    SOURCE_INF_PIEB,
+    SOURCE_INF_TRAD,
+    SOURCE_SPARKFS,
     build_filename_suffix,
     build_mos_filename_suffix,
     format_pieb_inf_line,
     format_trad_inf_line,
+    write_acorn_xattrs,
     write_econet_xattrs,
 )
-from oaknut_file import write_acorn_xattrs
+
 from .models import (
     ATTR_KEY,
     DIRS_KEY,
@@ -30,16 +38,9 @@ from .models import (
     LOAD_ADDR_KEY,
     PIEB_INF_COUNT_KEY,
     PLAIN_COUNT_KEY,
-    SOURCE_DIR,
-    SOURCE_FILENAME,
-    SOURCE_INF_PIEB,
-    SOURCE_INF_TRAD,
     SOURCE_KEY,
-    SOURCE_SPARKFS,
     SPARKFS_COUNT_KEY,
     TOTAL_KEY,
-    AcornMeta,
-    MetaFormat,
 )
 from .parsing import build_inf_index, resolve_metadata
 
@@ -93,7 +94,7 @@ def extract_member(
         verbose: Print extraction progress to stdout.
         meta_format: Output metadata format, or ``None`` to skip metadata.
         decode_filenames: Strip encoded metadata suffixes from filenames.
-        owner: Econet owner ID for inf-pieb and xattr formats.
+        owner: Econet owner ID for inf-pieb and xattr-pieb formats.
         inf_index: Pre-built index of bundled ``.inf`` metadata, as
             returned by :func:`~oaknut_zip.parsing.build_inf_index`.
     """
@@ -208,7 +209,7 @@ def extract_archive(
         verbose: Print extraction progress.
         meta_format: Output metadata format, or None for raw extraction.
         decode_filenames: Decode metadata from filename suffixes.
-        owner: Econet owner ID for inf-pieb and xattr formats.
+        owner: Econet owner ID for inf-pieb and xattr-pieb formats.
 
     Raises:
         click.ClickException: If the file is not a valid ZIP or xattr is

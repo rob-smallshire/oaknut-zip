@@ -39,22 +39,23 @@ def list_xattrs(filepath: Path) -> list[str]:
 
 from click.testing import CliRunner
 
-from oaknut_zip import (
+from oaknut_file import (
     AcornMeta,
     MetaFormat,
     build_filename_suffix,
-    build_inf_index,
     build_mos_filename_suffix,
-    extract_member,
-    format_access,
+    format_access_hex,
     format_pieb_inf_line,
     format_trad_inf_line,
     parse_encoded_filename,
     parse_inf_line,
+)
+from oaknut_zip import (
+    build_inf_index,
+    extract_member,
     parse_sparkfs_extra,
     resolve_metadata,
     sanitise_extract_path,
-    write_econet_xattrs,
 )
 from oaknut_zip.cli import cli
 
@@ -671,15 +672,15 @@ class TestFormatPibridgeInfLine:
 
 class TestFormatAccess:
     def test_none(self):
-        assert format_access(None) == ""
+        assert format_access_hex(None) == ""
 
     def test_zero(self):
-        assert format_access(0) == "00"
+        assert format_access_hex(0) == "00"
 
     def test_typical(self):
-        assert format_access(0x03) == "03"
-        assert format_access(0x17) == "17"
-        assert format_access(0xFF) == "FF"
+        assert format_access_hex(0x03) == "03"
+        assert format_access_hex(0x17) == "17"
+        assert format_access_hex(0xFF) == "FF"
 
 
 # =========================================================================
@@ -875,6 +876,28 @@ class TestNetUtilsZip:
         assert get_xattr(out / "Free", "user.econet_load") == b"FFFF0E10"
         assert get_xattr(out / "Free", "user.econet_exec") == b"FFFF0E10"
         assert get_xattr(out / "Free", "user.econet_owner") == b"0000"
+
+    @requires_xattr
+    def test_extract_xattr_acorn(self, tmp_path):
+        runner = CliRunner()
+        out = tmp_path / "out"
+        result = runner.invoke(
+            cli,
+            [
+                "extract",
+                str(NETUTILS_ZIP_FILEPATH),
+                "-d",
+                str(out),
+                "--meta-format",
+                "xattr-acorn",
+            ],
+        )
+        assert result.exit_code == 0
+        attrs = list_xattrs(out / "Free")
+        assert get_xattr(out / "Free", "user.acorn.load") == b"FFFF0E10"
+        assert get_xattr(out / "Free", "user.acorn.exec") == b"FFFF0E10"
+        # Acorn namespace only — no econet_* should have been written.
+        assert not any(a.startswith("user.econet_") for a in attrs)
 
     def test_extract_verbose(self, tmp_path):
         runner = CliRunner()
@@ -1238,6 +1261,26 @@ class TestExtractMember:
         assert get_xattr(prog_filepath, "user.econet_perm") == b"03"
         assert get_xattr(prog_filepath, "user.econet_owner") == b"0005"
 
+    @requires_xattr
+    def test_sparkfs_xattr_acorn(self, tmp_path):
+        extra = build_sparkfs_extra(0xFFFF0E10, 0x0000801F, 0x03)
+        data = b"\x00" * 64
+        zip_filepath = make_zip_file(tmp_path, [("PROG", data, extra)])
+        with zipfile.ZipFile(zip_filepath) as zf:
+            info = zf.infolist()[0]
+            extract_member(
+                zf,
+                info,
+                tmp_path / "out",
+                meta_format=MetaFormat.XATTR_ACORN,
+            )
+        prog_filepath = tmp_path / "out" / "PROG"
+        attrs = list_xattrs(prog_filepath)
+        assert get_xattr(prog_filepath, "user.acorn.load") == b"FFFF0E10"
+        assert get_xattr(prog_filepath, "user.acorn.exec") == b"0000801F"
+        assert get_xattr(prog_filepath, "user.acorn.attr") == b"03"
+        assert not any(a.startswith("user.econet_") for a in attrs)
+
     def test_encoded_filename_cleaned(self, tmp_path):
         data = b"\x01" * 32
         zip_filepath = make_zip_file(tmp_path, [("FILE,ffb", data, None)])
@@ -1293,53 +1336,6 @@ class TestExtractMember:
 
 
 # =========================================================================
-# xattr writing
-# =========================================================================
-
-
-@requires_xattr
-class TestWriteEconetXattrs:
-    def test_sets_all_four_attrs(self, tmp_path):
-        filepath = tmp_path / "testfile"
-        filepath.write_bytes(b"data")
-        write_econet_xattrs(filepath, 0xFFFF0E10, 0x0000801F, 0x03, owner=0)
-        assert get_xattr(filepath, "user.econet_load") == b"FFFF0E10"
-        assert get_xattr(filepath, "user.econet_exec") == b"0000801F"
-        assert get_xattr(filepath, "user.econet_perm") == b"03"
-        assert get_xattr(filepath, "user.econet_owner") == b"0000"
-
-    def test_owner_formatting(self, tmp_path):
-        filepath = tmp_path / "testfile"
-        filepath.write_bytes(b"data")
-        write_econet_xattrs(filepath, 0, 0, 0, owner=255)
-        assert get_xattr(filepath, "user.econet_owner") == b"00FF"
-
-    def test_default_perm_when_attr_none(self, tmp_path):
-        filepath = tmp_path / "testfile"
-        filepath.write_bytes(b"data")
-        write_econet_xattrs(filepath, 0, 0, attr=None)
-        assert get_xattr(filepath, "user.econet_perm") == b"17"
-
-    def test_zero_values(self, tmp_path):
-        filepath = tmp_path / "testfile"
-        filepath.write_bytes(b"data")
-        write_econet_xattrs(filepath, 0, 0, 0, owner=0)
-        assert get_xattr(filepath, "user.econet_load") == b"00000000"
-        assert get_xattr(filepath, "user.econet_exec") == b"00000000"
-        assert get_xattr(filepath, "user.econet_perm") == b"00"
-        assert get_xattr(filepath, "user.econet_owner") == b"0000"
-
-    def test_max_values(self, tmp_path):
-        filepath = tmp_path / "testfile"
-        filepath.write_bytes(b"data")
-        write_econet_xattrs(filepath, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF, owner=0xFFFF)
-        assert get_xattr(filepath, "user.econet_load") == b"FFFFFFFF"
-        assert get_xattr(filepath, "user.econet_exec") == b"FFFFFFFF"
-        assert get_xattr(filepath, "user.econet_perm") == b"FF"
-        assert get_xattr(filepath, "user.econet_owner") == b"FFFF"
-
-
-# =========================================================================
 # CLI commands
 # =========================================================================
 
@@ -1388,14 +1384,15 @@ class TestCliExtract:
         assert "PROG" in result.output
         assert "[sparkfs]" in result.output
 
-    def test_xattr_rejected_on_windows(self, tmp_path):
+    @pytest.mark.parametrize("meta_format", ["xattr-pieb", "xattr-acorn"])
+    def test_xattr_rejected_on_windows(self, tmp_path, meta_format):
         zip_filepath = make_zip_file(tmp_path, [("FILE", b"data", None)])
         runner = CliRunner()
         with patch("oaknut_zip.api.sys") as mock_sys:
             mock_sys.platform = "win32"
             result = runner.invoke(
                 cli,
-                ["extract", "--meta-format", "xattr-pieb", str(zip_filepath), "-d", str(tmp_path / "out")],
+                ["extract", "--meta-format", meta_format, str(zip_filepath), "-d", str(tmp_path / "out")],
             )
         assert result.exit_code != 0
         assert "not supported on Windows" in result.output
@@ -1540,6 +1537,27 @@ class TestCliBundledInf:
         # No .inf file should exist
         assert not (out / "FILE.inf").exists()
 
+    @requires_xattr
+    def test_extract_pieb_inf_as_xattr_acorn(self, tmp_path):
+        """Bundled PiEB .inf is consumed and written as user.acorn.* xattrs."""
+        zip_filepath = _make_zip_with_inf(
+            tmp_path, [("FILE", b"\x00" * 8, "0 ffffdd00 ffffdd00 3")]
+        )
+        out = tmp_path / "out"
+        runner = CliRunner()
+        result = runner.invoke(
+            cli,
+            ["extract", "--meta-format", "xattr-acorn", str(zip_filepath), "-d", str(out)],
+        )
+        assert result.exit_code == 0
+        assert (out / "FILE").is_file()
+        attrs = list_xattrs(out / "FILE")
+        assert get_xattr(out / "FILE", "user.acorn.load") == b"FFFFDD00"
+        assert get_xattr(out / "FILE", "user.acorn.exec") == b"FFFFDD00"
+        assert get_xattr(out / "FILE", "user.acorn.attr") == b"03"
+        assert not any(a.startswith("user.econet_") for a in attrs)
+        assert not (out / "FILE.inf").exists()
+
     def test_extract_none_preserves_inf(self, tmp_path):
         """With --meta-format none, bundled .inf files are extracted as-is."""
         zip_filepath = _make_zip_with_inf(
@@ -1644,6 +1662,27 @@ class TestSwehBundledInf:
                     attrs = list_xattrs(filepath)
                     if attrs:
                         assert "user.econet_load" in attrs
+                        break
+
+    @requires_xattr
+    def test_extract_xattr_acorn_no_inf_files(self, tmp_path):
+        """Extracting with xattr-acorn format should consume .inf files and
+        write the user.acorn.* namespace."""
+        out = tmp_path / "out"
+        runner = CliRunner()
+        result = runner.invoke(
+            cli,
+            ["extract", "--meta-format", "xattr-acorn", str(SWEH_ZIP_FILEPATH), "-d", str(out)],
+        )
+        assert result.exit_code == 0
+        library_dirpath = out / "Library"
+        if library_dirpath.is_dir():
+            for filepath in library_dirpath.iterdir():
+                if filepath.is_file() and not filepath.name.endswith(".inf"):
+                    attrs = list_xattrs(filepath)
+                    if attrs:
+                        assert "user.acorn.load" in attrs
+                        assert not any(a.startswith("user.econet_") for a in attrs)
                         break
 
 

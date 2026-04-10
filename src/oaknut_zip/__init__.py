@@ -1,7 +1,14 @@
 """oaknut-zip - Work with ZIP files containing Acorn computer metadata."""
 
-__version__ = "0.2.11"
+__version__ = "1.0.0"
 
+from .api import (
+    archive_info,
+    extract_archive,
+    extract_member,
+    list_archive,
+    sanitise_extract_path,
+)
 from .models import (
     ATTR_KEY,
     DIRS_KEY,
@@ -16,40 +23,18 @@ from .models import (
     LOAD_ADDR_KEY,
     PIEB_INF_COUNT_KEY,
     PLAIN_COUNT_KEY,
-    SOURCE_DIR,
-    SOURCE_FILENAME,
-    SOURCE_INF_PIEB,
-    SOURCE_INF_TRAD,
     SOURCE_KEY,
-    SOURCE_SPARKFS,
     SPARKFS_COUNT_KEY,
     TOTAL_KEY,
-    AcornMeta,
-    MetaFormat,
 )
 from .parsing import (
     build_inf_index,
-    parse_encoded_filename,
-    parse_inf_line,
     parse_sparkfs_extra,
     resolve_metadata,
-)
-from .formatting import (
-    build_filename_suffix,
-    build_mos_filename_suffix,
-    format_access,
-    format_pieb_inf_line,
-    format_trad_inf_line,
-    write_econet_xattrs,
-)
-from .api import (
-    extract_member,
-    sanitise_extract_path,
 )
 
 __all__ = [
     "ATTR_KEY",
-    "AcornMeta",
     "DIRS_KEY",
     "EXEC_ADDR_KEY",
     "FILE_SIZE_KEY",
@@ -60,28 +45,17 @@ __all__ = [
     "INF_COUNT_KEY",
     "IS_DIR_KEY",
     "LOAD_ADDR_KEY",
-    "MetaFormat",
     "PIEB_INF_COUNT_KEY",
     "PLAIN_COUNT_KEY",
-    "SOURCE_DIR",
-    "SOURCE_FILENAME",
-    "SOURCE_INF_PIEB",
-    "SOURCE_INF_TRAD",
     "SOURCE_KEY",
-    "SOURCE_SPARKFS",
     "SPARKFS_COUNT_KEY",
     "TOTAL_KEY",
-    "build_filename_suffix",
+    "archive_info",
     "build_inf_index",
-    "build_mos_filename_suffix",
+    "extract_archive",
     "extract_member",
-    "format_access",
-    "format_pieb_inf_line",
-    "format_trad_inf_line",
-    "parse_encoded_filename",
-    "parse_inf_line",
+    "list_archive",
     "parse_sparkfs_extra",
     "resolve_metadata",
     "sanitise_extract_path",
-    "write_econet_xattrs",
 ]

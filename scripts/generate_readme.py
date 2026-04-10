@@ -127,12 +127,20 @@ def generate() -> str:
         pieb_inf_examples = collect_pieb_inf_examples(pieb_dirpath)
 
         # xattr extraction (PiEconetBridge namespace)
-        xattr_dirpath = tmp / "xattr"
+        xattr_pieb_dirpath = tmp / "xattr-pieb"
         run_oaknut_zip(
             "extract", "--meta-format", "xattr-pieb", fixture,
-            "-d", str(xattr_dirpath),
+            "-d", str(xattr_pieb_dirpath),
         )
-        xattr_examples = collect_xattr_examples(xattr_dirpath)
+        xattr_pieb_examples = collect_xattr_examples(xattr_pieb_dirpath)
+
+        # xattr extraction (Acorn namespace)
+        xattr_acorn_dirpath = tmp / "xattr-acorn"
+        run_oaknut_zip(
+            "extract", "--meta-format", "xattr-acorn", fixture,
+            "-d", str(xattr_acorn_dirpath),
+        )
+        xattr_acorn_examples = collect_xattr_examples(xattr_acorn_dirpath)
 
     env = Environment(
         loader=FileSystemLoader(str(TEMPLATE_DIRPATH)),
@@ -147,7 +155,8 @@ def generate() -> str:
         info_output=info_output,
         trad_inf_examples=trad_inf_examples,
         pieb_inf_examples=pieb_inf_examples,
-        xattr_examples=xattr_examples,
+        xattr_pieb_examples=xattr_pieb_examples,
+        xattr_acorn_examples=xattr_acorn_examples,
     )
 
 
