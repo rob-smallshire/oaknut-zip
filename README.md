@@ -4,6 +4,30 @@
 
 # oaknut-zip
 
+> [!IMPORTANT]
+> **This repository has moved.** Development of `oaknut-zip` now happens in the
+> unified [`oaknut` monorepo](https://github.com/rob-smallshire/oaknut), alongside
+> `oaknut-file`, `oaknut-dfs`, and the forthcoming family members.
+>
+> **For users:** nothing changes at install time — `pip install oaknut-zip` still
+> works and pulls from PyPI as before, and the `oaknut-zip` CLI command is unchanged.
+> Starting with **version 2.0.0**, however, the Python import path changes from
+> `oaknut_zip` to `oaknut.zip` so it can contribute to the shared `oaknut.*`
+> namespace. Update your code:
+>
+> ```python
+> # Before
+> from oaknut_zip import extract_archive
+>
+> # After
+> from oaknut.zip import extract_archive
+> ```
+>
+> **For contributors:** please file issues and pull requests against the monorepo at
+> <https://github.com/rob-smallshire/oaknut>. This repository is archived read-only;
+> the full git history (including per-file `git blame`) is preserved under
+> `packages/oaknut-zip/` in the monorepo.
+
 [![PyPI version](https://img.shields.io/pypi/v/oaknut-zip)](https://pypi.org/project/oaknut-zip/)
 [![CI](https://github.com/rob-smallshire/oaknut-zip/actions/workflows/tests.yml/badge.svg)](https://github.com/rob-smallshire/oaknut-zip/actions/workflows/tests.yml)
 [![Python versions](https://img.shields.io/pypi/pyversions/oaknut-zip)](https://pypi.org/project/oaknut-zip/)
